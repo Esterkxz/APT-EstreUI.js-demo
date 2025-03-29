@@ -1,24 +1,24 @@
-const MY_HOST = "app.host.domain";
+const MY_HOST = "estreui.mpsolutions.kr/APT";
 
-const CACHE_VERSION_NAME = "cache-v1.0";
+const CACHE_VERSION_NAME = "cache-v1.4";
  
 const CACHE_LIST = [
     "/favicon.ico",
     "/index.html",
     "/webmanifest.json",
 
-    "/images/app_icon_16x16.png",
-    "/images/app_icon_32x32.png",
-    "/images/app_icon_48x48.png",
-    "/images/app_icon_144x144.png",
-    "/images/app_icon_167x167.png",
-    "/images/app_icon_180x180.png",
-    "/images/app_icon_192x192.png",
-    "/images/app_icon_512x512.png",
+    "/images/APT_16.png",
+    "/images/APT_32.png",
+    "/images/APT_48.png",
+    "/images/APT_144.png",
+    "/images/APT_152.png",
+    "/images/APT_167.png",
+    "/images/APT_180.png",
+    "/images/APT_192.png",
+    "/images/APT_512.png",
 
     "/lotties/menu_and_back_btn.json",
-    "/lotties/menu_and_close_btn.json",
-    "/lotties/loading_circle.json",
+    "/lotties/loading_circle_pink.json",
     "/lotties/ptr_indic.json",
     "/lotties/progress_bar.json",
 
@@ -34,9 +34,6 @@ const CACHE_LIST = [
     "/scripts/estreU0EEOZ.js",
     "/scripts/estreUi.js",
     "/scripts/main.js",
-
-    "/vectors/more_vertical_slim_icon.svg",
-    "/vectors/app_icon.svg",
 
 ];
 
