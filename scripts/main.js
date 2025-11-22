@@ -451,4 +451,4 @@ $(document).ready((e) => setTimeout(_ => {
     postQueue(_ => estreUi.checkOnReady());
 
 
-}, 1);
+}, 1));
