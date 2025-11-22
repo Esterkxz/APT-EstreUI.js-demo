@@ -25,11 +25,14 @@ class ApartPagesProvider {
     get pageManager() { return this.#pageManager; }
     #actionHandler = null;
     get actionHandler() { return this.#actionHandler; }
+    #actionManager = null;
+    get actionManager() { return this.#actionManager; }
 
 
-    constructor(pageManager, actionHandler) {
+    constructor(pageManager, actionHandler, actionManager) {
         this.#pageManager = pageManager;
         this.#actionHandler = actionHandler;
+        this.#actionManager = actionManager;
     }
 
 
@@ -429,6 +432,8 @@ const apartActionHandler = new ApartActionHandler();
 
 const apartPageManager = new ApartPageManager();
 
+const apartActionManager = new ApartActionManager(apartPageManager);
+
 
 // Own application and EstreUI initializing
 $(document).ready((e) => setTimeout(_ => {
@@ -438,7 +443,7 @@ $(document).ready((e) => setTimeout(_ => {
 
 
     //something do while intializes on splash page
-    apartPageManager.init(ApartPagesProvider.pages, new ApartPagesProvider(apartPageManager, apartActionHandler));
+    apartPageManager.init(ApartPagesProvider.pages, new ApartPagesProvider(apartPageManager, apartActionHandler, apartActionManager));
     //initialize Estre UI after checked user session
     estreUi.init(false);
 
