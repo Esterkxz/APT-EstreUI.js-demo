@@ -15,6 +15,9 @@
 
 // UI specifier constants
 const uis = {
+    // lottie player //
+    dotlottiePlayer: "dotlottie-player",
+    dotlottieLoader: "dotlottie-loader",
 
     // rim ui //
     
@@ -70,6 +73,21 @@ const uis = {
     unifiedScheduler: ".unified_scheduler",
     scheduleHolder: ".schedule_holder",
     scheduleItem: ".schedule_item",
+
+    // dedicated calendar
+    dedicatedCalendar: ".dedicated_calendar",
+    calendarBlock: ".calendar_block",
+    scheduleBlock: ".schedule_block",
+
+    // micro calendar
+    microCalendar: ".micro_calendar",
+    stretchHandle: ".stretch_handle",
+    handle: ".handle",
+
+    // minimal scheduler
+    minimalScheduler: ".minimal_scheduler",
+    minimalScheduleList: ".schedule_list",
+    schedule: ".schedule",
     
     // calendar common
     scaler: ".scaler",
@@ -115,6 +133,16 @@ const uis = {
     boundHost: ".bound_host",
 
 
+    // dynamic section block
+    dynamicSectionHost: ".dynamic_section_host",
+    dynamicSectionBlock: ".dynamic_section_block",
+    hostItem: ".host_item",
+    blockItem: ".block_item",
+
+
+    // custom selector bar
+    customSelectorBar: ".custom_selector_bar",
+
     // month selector bar
     monthSelectorBar: ".month_selector_bar",
 
@@ -124,8 +152,11 @@ const uis = {
     dateReplacer: ".dete_replacer",
     fullYear: ".full_year",
     year2d: ".year_2d",
+    month2d: ".month_2d",
+    date2d: ".date_2d",
     paddedMonth: ".padded_month",
     paddedDate: ".padded_date",
+    shortDay: ".short_day",
 
     // num keypad
     numKeypad: ".num_keypad",
@@ -138,6 +169,10 @@ const uis = {
 
     // toaster slot
     toasterSlot: ".toaster_slot",
+
+
+    // exported content
+    exportedContent: ".exported_content",
 
 
     // quick transitions
@@ -167,6 +202,7 @@ const eds = {
     active: "data-active",
     onTop: "data-on-top",
     static: "data-static",
+    exported: "data-exported",
     multiInstance: "data-multi-instance",
 
     // for bind data
@@ -240,10 +276,13 @@ const eds = {
     year: "data-year",
     month: "data-month",
     adjoin: "data-adjoin",
+    adjoinYear: "data-adjoin-year",
+    adjoinMonth: "data-adjoin-month",
     adjoinWeek: "data-adjoin-week",
     week: "data-week",
     day: "data-day",
     date: "data-date",
+    holiday: "data-holiday",
     dateY: "data-date-y",
     dateM: "data-date-m",
     dateD: "data-date-d",
@@ -259,6 +298,7 @@ const eds = {
     transition: "data-transition",
     satisfy: "data-satisfy",
     show: "data-show",
+    showing: "data-showing",
     length: "data-length",
     title: "data-title",
     for: "data-for",
@@ -268,6 +308,15 @@ const eds = {
     autoInit: "data-auto-init",
     placeholder: "data-placeholder",
     options: "data-options",
+    code: "data-code",
+    value: "data-value",
+    intersectionRootMargin: "data-intersection-root-margin",
+    intersectionThreshold: "data-intersection-threshold",
+
+    // message datas
+    messageOnNoSelection: "data-message-on-no-selection",
+    messageOnLoading: "data-message-on-loading",
+    messageOnNoData: "data-message-on-no-data",
 
     // body global switch
     onResizing: "data-on-resizing",
@@ -304,6 +353,9 @@ const eds = {
     focusMonth: "data-focus-m",
     focusWeek: "data-focus-w",
     focusDay: "data-focus-d",
+    boundYear: "data-bound-y",
+    boundMonth: "data-bound-m",
+    boundWeek: "data-bound-w",
     hideWeekage: "data-hide-weekage",
     hideWeekend: "data-hide-weekend",
 
@@ -349,6 +401,8 @@ const eds = {
 
     // for month selector bar
     dropdownOpen: "data-dropdown-open",
+    showFuture: "data-show-future",
+    usePopupSelector: "data-use-popup-selector",
 
 
     // for solid point
@@ -362,7 +416,11 @@ const eds = {
     showPage: "data-show-page",
     closePage: "data-close-page",
     openAction: "data-open-action",
+    openBringOnBack: "data-open-bring-on-back",
+    openData: "data-open-data",
     showAction: "data-show-action",
+    showBringOnBack: "data-show-bring-on-back",
+    showData: "data-show-data",
 
 
     // for swipe handler
@@ -489,6 +547,21 @@ const toastConfirm = (title, message,
 function estreToastPrompt(options = {}) {
     return new Promise((resolve) => pageManager.bringPage("!toastPrompt", {
         data: options,
+        onPromptFocus(input, text, event) {
+            this?.data?.callbackFocus?.(input, text, event);
+        },
+        onPromptInput(input, text, event) {
+            this?.data?.callbackInput?.(input, text, event);
+        },
+        onPromptPaste(input, pasteText, text, event) {
+            this?.data?.callbackPaste?.(input, pasteText, text, event);
+        },
+        onPromptChange(input, text, event) {
+            this?.data?.callbackChange?.(input, text, event);
+        },
+        onPromptBlur(input, text, event) {
+            this?.data?.callbackBlur?.(input, text, event);
+        },
         onConfirm(text) {
             this?.data?.callbackConfirm?.(text);
             resolve(text);
@@ -612,7 +685,7 @@ alert = (title, message,
     callbackOk = () => {},
     callbackDissmiss = () => {},
     ok = isKorean() ? "확인" : "OK",
-) => estreAlert({ title, message, callbackOk, callbackDissmiss, ok });
+) => tu(title) ? classicAlert() : estreAlert({ title, message, callbackOk, callbackDissmiss, ok });
 
 
 function estreConfirm(options = {}) {
@@ -654,6 +727,21 @@ confirm = (title, message,
 function estrePrompt(options = {}) {
     return new Promise((resolve) => pageManager.bringPage("!prompt", {
         data: options,
+        onPromptFocus(input, text, event) {
+            this?.data?.callbackFocus?.(input, text, event);
+        },
+        onPromptInput(input, text, event) {
+            this?.data?.callbackInput?.(input, text, event);
+        },
+        onPromptPaste(input, pasteText, text, event) {
+            this?.data?.callbackPaste?.(input, pasteText, text, event);
+        },
+        onPromptChange(input, text, event) {
+            this?.data?.callbackChange?.(input, text, event);
+        },
+        onPromptBlur(input, text, event) {
+            this?.data?.callbackBlur?.(input, text, event);
+        },
         onConfirm(text) {
             this?.data?.callbackConfirm?.(text);
             resolve(text);
@@ -680,17 +768,20 @@ prompt = (title,
 
 
 // Infinite loop and prograss meter
+const waitings = new Set();
 let latestIO = null;
+let backHolds = 0;
 
 /**
  * Show infinite loop wait indicator
  * 
  * @param {instanceOrigin: string} / instance access origin code
  */
-const wait = function (instanceOrigin) {
-    const io = pageManager.bringPage("!onRunning", undefined, instanceOrigin) ? instanceOrigin : undefined;
-    latestIO = io;
-    return io;
+const wait = function (options, instanceOrigin = "wait_" + Date.now()) {
+    if (instanceOrigin != n) waitings.add(instanceOrigin);
+    latestIO = instanceOrigin;
+    pageManager.bringPage("!onRunning", { data: options }, instanceOrigin);
+    return instanceOrigin;
 }
 
 /**
@@ -699,12 +790,21 @@ const wait = function (instanceOrigin) {
  * @param {delay: Number} / wait go() before bring wait indicator (ms, default is 600)
  * @param {instanceOrigin: string} / instance access origin code (default is to be auto generated)
  */
-const stedy = function (delay = 600, instanceOrigin = "stedy" + Date.now()) {
+const stedy = function (options, delay = 600, instanceOrigin = "stedy_" + Date.now()) {
+    if (instanceOrigin != n) waitings.add(instanceOrigin);
     latestIO = instanceOrigin;
-    setTimeout(() => {
-        if (latestIO == instanceOrigin) wait(instanceOrigin);
+    setTimeout(_ => {
+        if (latestIO == instanceOrigin) wait(options, instanceOrigin);
     }, delay);
     return instanceOrigin;
+}
+
+const onBackWhile = function (handle) {
+    if (handle != n || latestIO != n) {
+        backHolds++;
+        return t;
+    }
+    return f;
 }
 
 /**
@@ -713,9 +813,21 @@ const stedy = function (delay = 600, instanceOrigin = "stedy" + Date.now()) {
  * @param {instanceOrigin} / instance access origin code
  */
 const go = function (instanceOrigin) {
-    if (instanceOrigin != null && latestIO != instanceOrigin) return
-    const aio = pageManager.closePage("!onRunning", false, instanceOrigin);
-    latestIO = null;
+    if (instanceOrigin != n) {
+        if (waitings.has(instanceOrigin) == f) return;
+        waitings.delete(instanceOrigin);
+        if (latestIO != instanceOrigin && waitings.size > 0) return;
+    }
+    const aio = pageManager.closePage("!onRunning", f, instanceOrigin);
+    latestIO = n;
+    if (backHolds > 0) postAsyncQueue(async _ => {
+        const holds = backHolds;
+        backHolds = 0;
+        await aio;
+        if (window.isLogging) console.log("Release holded back requests");
+        // for (let i=0; i<holds; i++) await estreUi.onBack();
+        await estreUi.onBack();
+    })
     return aio;
 }
 
@@ -766,20 +878,20 @@ class EstreNotationManager {
             return new Promise((resolve) => {
                 const it = new EstreNotationManager(message, showTime, onTakeInteraction, options, resolve);
                 this.#queue.push(it);
-                // console.log(this.#page + " posted: ", it);
-                setTimeout(() => this.postHandler(), 0);
+                if (window.isDebug) console.log(this.#page + " posted: ", it);
+                postQueue(_ => this.postHandler());
             });
         }
     }
 
     static postHandler() {
-        console.log("queue: ", this.#queue);
+        if (window.isDebug) console.log("queue: ", this.#queue);
         if (this.postHandle == null && this.current == null && this.#queue.length > 0) {
             const handle = Date.now();
             this.postHandle = handle;
             const current = this.#queue.splice(0, 1)[0];
             current.data.posted = handle;
-            // console.log(this.#page + " bring: ", current);
+            if (window.isDebug) console.log(this.#page + " bring: ", current);
             return pageManager.bringPage("!" + this.#page, current, handle);
         }
     }
@@ -790,8 +902,8 @@ class EstreNotationManager {
                 this.current = null;
             }
             this.postHandle = null;
-            // console.log(this.#page + " checked out: ", intent);
-            setTimeout(() => { this.postHandler(); }, 0);
+            if (window.isDebug) console.log(this.#page + " checked out: ", intent);
+            postQueue(_ => this.postHandler());
         }
         intent.resolver?.(intent);
     }
@@ -891,7 +1003,7 @@ class ES {
     _storage = null;
     _storagePrefix = null;
 
-    get _prefix() { return ES_PREFIX + "RAW_" + this._storagePrefix; }
+    get _prefix() { return ES_PREFIX + this._storagePrefix + "RAW_"; }
 
 
     _getFullKey(key) { return this._prefix + key; }
@@ -932,8 +1044,8 @@ class ES {
                 else try {
                     return JSON.parse(value);
                 } catch (ex) {
-                    console.log("[" + ex.name + "]" + ex.message);
-                    console.log(value);
+                    if (window.isLogging) console.error("[" + ex.name + "]" + ex.message);
+                    if (window.isDebug) console.error(value);
                     return def;
                 }
 
@@ -942,8 +1054,8 @@ class ES {
                 else try {
                     return atob(value);
                 } catch (ex) {
-                    console.log("[" + ex.name + "]" + ex.message);
-                    console.log(value);
+                    if (window.isLogging) console.error("[" + ex.name + "]" + ex.message);
+                    if (window.isDebug) console.error(value);
                     return def;
                 }
 
@@ -952,8 +1064,8 @@ class ES {
                 else try {
                     return Uint8Array.from(atob(value), (m) => m.codePointAt(0));
                 } catch (ex) {
-                    console.log("[" + ex.name + "]" + ex.message);
-                    console.log(value);
+                    if (window.isLogging) console.error("[" + ex.name + "]" + ex.message);
+                    if (window.isDebug) console.error(value);
                     return def;
                 }
 
@@ -971,7 +1083,7 @@ class ES {
     getBytes(key, def) { return this.#get(key, "bytes", def); }
     getObject(key, def) { return this.#get(key, "object", def); }
 
-    get(key, def) { return this.#get(key, def); }
+    get(key, def) { return this.getString(key, def); }
         
 
     #set(key, type = "string", value) {
@@ -990,8 +1102,8 @@ class ES {
                 try {
                     valueString = JSON.stringify(value);
                 } catch (ex) {
-                    console.log("[" + ex.name + "]" + ex.message);
-                    console.log(value);
+                    if (window.isLogging) console.error("[" + ex.name + "]" + ex.message);
+                    if (window.isDebug) console.error(value);
                     return false;
                 }
                 break;
@@ -1000,8 +1112,8 @@ class ES {
                 try {
                     valueString = btoa(value);
                 } catch (ex) {
-                    console.log("[" + ex.name + "]" + ex.message);
-                    console.log(value);
+                    if (window.isLogging) console.error("[" + ex.name + "]" + ex.message);
+                    if (window.isDebug) console.error(value);
                     return false;
                 }
                 break;
@@ -1010,8 +1122,8 @@ class ES {
                 try {
                     valueString = btoa(Array.from(value, (x) => String.fromCodePoint(x)).join(""));
                 } catch (ex) {
-                    console.log("[" + ex.name + "]" + ex.message);
-                    console.log(value);
+                    if (window.isLogging) console.error("[" + ex.name + "]" + ex.message);
+                    if (window.isDebug) console.error(value);
                     return false;
                 }
                 break;
@@ -1039,7 +1151,7 @@ class ES {
     setBytes(key, value) { return this.#set(key, "bytes", value); }
     setObject(key, value) { return this.#set(key, "object", value); }
     
-    set(key, value) { return this.#set(key, value); }
+    set(key, value) { return this.setString(key, value); }
 
     
     #remove(key) {
@@ -1092,7 +1204,7 @@ class EAS extends ES {
     async setBytes(key, value) { return await this.#set(key, "bytes", value); }
     async setObject(key, value) { return await this.#set(key, "object", value); }
     
-    async set(key, value) { return await this.#set(key, value); }
+    async set(key, value) { return await this.setString(key, value); }
 
 
     async #remove(key) {
@@ -1120,7 +1232,7 @@ class EJS {
 
     _codeType;
 
-    get _prefix() { return ES_PREFIX + this._codeType + this._storagePrefix; }
+    get _prefix() { return ES_PREFIX + this._storagePrefix + this._typePrefix; }
 
 
     _getFullKey(key) { return this._prefix + key; }
@@ -1135,8 +1247,8 @@ class EJS {
         if (key == null | key == "") return;
         const value = this._storage.getItem(this._getFullKey(key));
         return value == null ? def : equalCase(this._codeType, {
-            json: JSON.parse(value),
-            jcodd: Jcodd.parse(value),
+            json: _ => JSON.parse(value),
+            jcodd: _ => Jcodd.parse(value),
         });
     }
 
@@ -1145,11 +1257,11 @@ class EJS {
         let valueString
         try {
         valueString = equalCase(this._codeType, {
-            json: JSON.stringify(value),
-            jcodd: Jcodd.coddify(value),
+            json: _ => JSON.stringify(value),
+            jcodd: _ => Jcodd.coddify(value),
         });
         } catch (ex) {
-            console.log(ex);
+            if (window.isLogging) console.error(ex);
         }            
         return this._storage.setItem(this._getFullKey(key), valueString == null ? "" : valueString);
     }
@@ -1169,8 +1281,8 @@ class EAJS extends EJS {
         if (key == null | key == "") return;
         const value = await this._storage.getItem(this._getFullKey(key));
         return value == null ? def : equalCase(this._codeType, {
-            json: JSON.parse(value),
-            jcodd: Jcodd.parse(value),
+            json: _ => JSON.parse(value),
+            jcodd: _ => Jcodd.parse(value),
         });
     }
 
@@ -1179,11 +1291,11 @@ class EAJS extends EJS {
         let valueString
         try {
         valueString = equalCase(this._codeType, {
-            json: JSON.stringify(value),
-            jcodd: Jcodd.coddify(value),
+            json: _ => JSON.stringify(value),
+            jcodd: _ => Jcodd.coddify(value),
         });
         } catch (ex) {
-            console.log(ex);
+            if (window.isLogging) console.error(ex);
         }            
         return await this._storage.setItem(this._getFullKey(key), valueString == null ? "" : valueString);
     }
@@ -1318,6 +1430,10 @@ class EstreAsyncManager {
         else this.onClears.add(callback);
     }
 
+    static removeOnFinishedCurrentWorks(callback) {
+        this.onClears.delete(callback);
+    }
+
     static bringFinishCallback() {
         const callbacks = Array.from(this.onClears);
         const lefts = this.workIs;
@@ -1340,6 +1456,9 @@ class EstrePageHandle {
     host = null;
     $host = null;
     id = null;
+
+    page = null;
+    pid = null;
 
     get isStatic() { return this.$host?.attr(eds.static) == t1; }
     get isFullyStatic() { return this.isStatic; }
@@ -1408,12 +1527,27 @@ class EstrePageHandle {
     #isFocused = false;
     get isFocused() { return this.isShowing && this.#isFocused; }
 
+    #isHiding = false;
+    get isHiding() { return this.#isHiding; }
+    #isClosing = false;
+    get isClosing() { return this.#isClosing; }
+    #isReleasing = false;
+    get isReleasing() { return this.#isReleasing; }
+
     #currentOnTop = null;
     get currentOnTop() { return this.#currentOnTop; };
     set currentOnTop(handle) {
         this.#currentOnTop = handle;
     }
 
+    #intentProxy;
+    #intentDataProxy;
+    #intentDataBindProxy = {};
+    #revokeIntentProxy;
+    #revokeIntentDataProxy;
+    #revokeIntentDataBindProxy = {};
+
+    #isProcessing = f;
 
     constructor(host) {
         this.host = host;
@@ -1423,24 +1557,35 @@ class EstrePageHandle {
             try {
             this.host.pageHandle.release();
             } catch (ex) {
-                console.log(ex.name + "\n", ex.message);
+                if (window.isLogging) console.error(ex.name + "\n", ex.message);
             }
         }
         this.host.pageHandle = this;
     }
 
     release(remove) {
-        this.onRelease(remove);
+        this.onRelease(remove).then(_ => {
+            for (const revoke of this.#revokeIntentDataBindProxy.looks) try {
+                revoke?.();
+            } catch (ex) {}
+            this.#revokeIntentDataProxy?.();
+            this.#revokeIntentProxy?.();
+        });
 
-        if (this.host != null) this.host.pageHandle = null;
+        if (this.host != null) delete this.host.pageHandle;
 
         if (remove === true) this.$host?.remove();
-        else if (remove === false) this.$host?.empty();
-        this.host = null;
-        this.$host = null;
+        else {
+            if (remove === false) this.$host?.empty();
+            this.host = n;
+            this.$host = n;
+        }
     }
 
-    init(intent) {
+    init(page, intent) {
+        this.page = page;
+        this.pid = page.pid;
+        page.fetchHandler(this);
         if (this.handler == null) this.setHandler(new EstrePageHandler(this));
 
         this.pushIntent(intent, true);
@@ -1453,14 +1598,122 @@ class EstrePageHandle {
     setHandler(handler) {
         if (this.#handler == null) this.#handler = handler;
     }
+
+    takeOnPageIntent(intent = {}) {
+        this.#revokeIntentProxy?.();
+        if (nn(intent?.data) && !intent.data.isProxy) intent.data = this.takeOnPageData(intent.data);
+        const { proxy, revoke } = nn(intent) ? Proxy.revocable(intent, {
+            get: (target, prop) => prop == "isProxy" ? t : target[prop],
+            set: (target, prop, value) => {
+                if (prop == "data") {
+                    target.data = this.takeOnPageData(value);
+                    if (!this.#isProcessing) this.applyActiveStruct();
+                } else target[prop] = value;
+                return t;
+            },
+            deleteProperty: (target, prop) => {
+                if (prop == "data") {
+                    this.takeOnPageData(u);
+                    delete target.data;
+                } else delete target[prop];
+                if (!this.#isProcessing) this.applyActiveStruct();
+                return t;
+            },
+        }) : { proxy: u, revoke: u };
+        this.#intentProxy = proxy;
+        this.#revokeIntentProxy = revoke;
+        return proxy ?? intent;
+    }
+
+    takeOnPageData(data = {}) {
+        this.#revokeIntentDataProxy?.();
+        const isObject = nn(data) && tj(data);
+        if (isObject) for (const key in data) if (!data[key]?.isProxy) data[key] = this.takeOnPageBind(key, data[key]);
+        const { proxy, revoke } = isObject ? Proxy.revocable(data, {
+            get: (target, prop) => prop == "isProxy" ? t : target[prop],
+            set: (target, prop, value) => {
+                target[prop] = this.takeOnPageBind(prop, value);
+                if (!this.#isProcessing) this.applyActiveStruct();
+                return t;
+            },
+            deleteProperty: (target, prop) => {
+                this.takeOnPageBind(prop, u);
+                delete target[prop];
+                if (!this.#isProcessing) this.applyActiveStruct();
+                return t;
+            },
+        }) : { proxy: u, revoke: u };
+        this.#intentDataProxy = proxy;
+        this.#revokeIntentDataProxy = revoke;
+        return proxy ?? data;
+    }
+
+    takeOnPageBind(pr, bind) {
+        this.#revokeIntentDataBindProxy[pr]?.();
+        if (nn(bind) && tj(bind)) {
+            const { proxy, revoke } = Proxy.revocable(bind, {
+                get: (target, prop) => prop == "isProxy" ? t : target[prop],
+                set: (target, prop, value) => {
+                    target[prop] = value;
+                    if (!this.#isProcessing) this.applyActiveStruct();
+                    return t;
+                },
+                deleteProperty: (target, prop) => {
+                    delete target[prop];
+                    if (!this.#isProcessing) this.applyActiveStruct();
+                    return t;
+                },
+            });
+            this.#intentDataBindProxy[pr] = proxy;
+            this.#revokeIntentDataBindProxy[pr] = revoke;
+            return proxy;
+        } else {
+            delete this.#intentDataBindProxy[pr];
+            delete this.#revokeIntentDataBindProxy[pr];
+            return bind;
+        }
+    }
+
+    apply(process = (data, intent) => {}, $bound = this.$host) {
+        const isAlreadyProcessing = this.#isProcessing;
+        if (!isAlreadyProcessing) this.#isProcessing = t;
+        this.placeIntentData();
+        process(this.intent.data, this.intent);
+        if (!isAlreadyProcessing) this.#isProcessing = f;
+        return this.applyActiveStruct($bound);
+    }
+
+    async applyAsync(process = async (data, intent) => {}, $bound = this.$host) {
+        const isAlreadyProcessing = this.#isProcessing;
+        if (!isAlreadyProcessing) this.#isProcessing = t;
+        this.placeIntentData();
+        await process(this.intent.data, this.intent);
+        if (!isAlreadyProcessing) this.#isProcessing = f;
+        return await this.applyActiveStruct($bound);
+    }
+
+    placeIntent(intent = {}) {
+        return this.#intent ??= this.takeOnPageIntent(intent);
+    }
+    
+    placeIntentData(data = {}) {
+        this.placeIntent();
+        return this.#intent.data ??= data;
+    }
     
     pushIntent(intent, onInit = false) {
-        if (intent != null) {
-            if (intent === false) this.#intent = null;
-            else if (this.intent == null) this.#intent = intent;
-            else for (var key in intent) this.intent[key] = intent[key];
-            console.log("pushed intent on " + this.hostType + " " + EstreUiPage.from(this).pid + "\n", this.intent);
-            this.onIntentUpdated(this, intent);
+        if (intent != n) {
+            const push = _ => {
+                if (intent === f) this.#intent = this.takeOnPageIntent(n);
+                else if (this.intent == n) this.#intent = this.takeOnPageIntent(intent);
+                else for (const key in intent) this.intent[key] = intent[key];
+
+                if (window.isVerbosely) console.log("pushed intent on " + this.hostType + " " + EstreUiPage.from(this).pid + "\n", this.intent);
+                else if (window.isDebug) console.log("pushed intent on " + this.hostType + " " + EstreUiPage.from(this).pid + "\n");
+                this.onIntentUpdated(this, intent);
+            };
+            if (this.#isOpened) this.apply(push);
+            else push();
             return true;
         } else false;
     }
@@ -1471,11 +1724,11 @@ class EstrePageHandle {
             this.onOpen();
             this.onShow();
             this.$host.attr(eds.onTop, t1 + "*");
-            setTimeout(() => {
+            setTimeout(async _ => {
                 const $host = this?.$host;
                 if ($host != null && $host.attr(eds.onTop) == t1 + "*") {
                     $host.attr(eds.onTop, t1);
-                    if (setFocus && this != null && this.hostType == "article") estreUi.focus(this);//this?.focus();
+                    if (setFocus && this != null && this.hostType == "article") await estreUi.focus(this);//this?.focus();
                 }
             }, 0);
             return true;
@@ -1494,8 +1747,9 @@ class EstrePageHandle {
         else if (this.#isOpened) {
             const onTop = this.currentOnTop;
             const onReload = this.handler?.onReload;
-            return (onTop != null && onTop.onReload()) || (onReload != null && ((handle) => {
-                console.log("[performReload] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid, this.host);
+            return (onTop != null && onTop.onReload()) || (onReload != null && (handle => {
+                if (window.isVerbosely) console.log("[performReload] " + this.sectionBound + " " + this.hostType + " " + this.pid, this.host);
+                else if (window.isDebug) console.log("[performReload] " + this.sectionBound + " " + this.hostType + " " + this.pid);
                 return handle?.handler?.onReload(this);
             })(this));
         } else return false;
@@ -1507,7 +1761,8 @@ class EstrePageHandle {
             const onTop = this.currentOnTop;
             const onBack = this.handler?.onBack;
             return (onTop != null && await onTop.onBack()) || (onBack != null && await (async (handle) => {
-                console.log("[performBack] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid, this.host);
+                if (window.isVerbosely) console.log("[performBack] " + this.sectionBound + " " + this.hostType + " " + this.pid, this.host);
+                else if (window.isDebug) console.log("[performBack] " + this.sectionBound + " " + this.hostType + " " + this.pid);
                 return await handle?.handler?.onBack(this);
             })(this));
         } else return false;
@@ -1515,50 +1770,55 @@ class EstrePageHandle {
 
     blur() {
         if (this.isFocused) {
-            this.onBlur();
-            return true;
+            return this.onBlur();
         } else return false;
     }
 
-    hide(fullyHide = true) {
-        if (this.isShowing || !this.isFullyHided) {
-            return new Promise((resolve) => {
-                this.blur();
-                this.onHide(fullyHide);
-                if (fullyHide) {
-                    this.$host.attr(eds.onTop, t0);
-                    setTimeout(() => {
+    async hide(fullyHide = true) {
+        if ((!this.isHiding && this.isShowing) || (fullyHide && !this.isFullyHided)) {
+            this.#isHiding = true;
+            await this.blur();
+            await this.onHide(fullyHide);
+            if (fullyHide) {
+                this.$host.attr(eds.onTop, t0);
+                const delay = cvt.t2ms(this.$host.css(a.trdr));
+                return new Promise(async (resolve) => {
+                    setTimeout(_ =>{
                         const $host = this?.$host;
                         if ($host != null && $host.attr(eds.onTop) == t0) {
                             $host.attr(eds.onTop, "");
                             resolve(true);
                         } else resolve(false);
-                    }, cvt.t2ms(this.$host.css(a.trdr)));
-                } else {
-                    this.$host.attr(eds.onTop, t0 + "*");
-                    resolve(true);
-                }
-            });
+                    }, delay);
+                });
+            } else {
+                this.$host.attr(eds.onTop, t0 + "*");
+                return true;
+            }
         } else return false;
     }
 
-    async close(isRequest = false, isOnRelease = false) {
+    close(isTermination = false, isOnRelease = false) {
         if (this.isOpened) {
-            await this.hide();
-            return this.onClose(isOnRelease);
+            if (this.isOpened && (isOnRelease || isTermination || !this.isStatic)) this.#isClosing = true;
+            const task = this.hide();
+            return postAsyncQueue(async _ => {
+                await task;
+                return await this.onClose(isTermination, isOnRelease);
+            });
         } else return false;
     }
 
 
     onBring() {
-        console.log("[onBring] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid);//, this.host);
+        if (window.isDebug) console.log("[onBring] " + this.sectionBound + " " + this.hostType + " " + this.pid);//, this.host);
         if (this.handler?.onBring != null) this.handler.onBring(this);
         if (this.intent?.onBring != null) for (var item of this.intent.onBring) if (item.from == this.hostType && !item.disabled) this.processAction(item);
     }
 
     onOpen() {
         if (!this.isOpened) {
-            console.log("[onOpen] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid);//, this.host);
+            if (window.isDebug) console.log("[onOpen] " + this.sectionBound + " " + this.hostType + " " + this.pid);//, this.host);
             this.#isOpened = true;
             if (this.handler?.onOpen != null) this.handler.onOpen(this);
             if (this.intent?.onOpen != null) for (var item of this.intent.onOpen) if (item.from == this.hostType && !item.disabled) this.processAction(item);
@@ -1568,7 +1828,8 @@ class EstrePageHandle {
 
     onShow() {
         if (this.isOpened && !this.isShowing) {
-            console.log("[onShow] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid, this.host);
+            if (window.isVerbosely) console.log("[onShow] " + this.sectionBound + " " + this.hostType + " " + this.pid, this.host);
+            else if (window.isDebug) console.log("[onShow] " + this.sectionBound + " " + this.hostType + " " + this.pid);
             this.#isShowing = true;
             if (this.handler?.onShow != null) this.handler.onShow(this);
             if (this.intent?.onShow != null) for (var item of this.intent.onShow) if (item.from == this.hostType && !item.disabled) this.processAction(item);
@@ -1578,7 +1839,7 @@ class EstrePageHandle {
 
     onFocus() {
         if (!this.isFocused) {
-            console.log("[onFocus] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid);//, this.host);
+            if (window.isDebug) console.log("[onFocus] " + this.sectionBound + " " + this.hostType + " " + this.pid);//, this.host);
             this.#isFocused = true;
             if (this.handler?.onFocus != null) this.handler.onFocus(this);
             if (this.intent?.onFocus != null) for (var item of this.intent.onFocus) if (item.from == this.hostType && !item.disabled) this.processAction(item);
@@ -1588,7 +1849,7 @@ class EstrePageHandle {
 
     onIntentUpdated(handle, intent) {
         if (this.isOpened) {
-            console.log("[onIntentUpdated] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid);//, this.host);
+            if (window.isDebug) console.log("[onIntentUpdated] " + this.sectionBound + " " + this.hostType + " " + this.pid);//, this.host);
             if (this.handler?.onIntentUpdated != null) this.handler.onIntentUpdated(this, intent);
             if (this.intent?.onIntentUpdated != null) for (var item of this.intent.onIntentUpdated) if (item.from == this.hostType && !item.disabled) this.processAction(item);
         }
@@ -1596,54 +1857,78 @@ class EstrePageHandle {
 
     onReload() {
         if (this.isOpened) {
-            console.log("[onReload] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid);//, this.host);
+            if (window.isDebug) console.log("[onReload] " + this.sectionBound + " " + this.hostType + " " + this.pid);//, this.host);
             return this.reload(false);
         } else return false;
     }
 
     async onBack() {
         if (this.isShowing) {
-            console.log("[onBack] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid);//, this.host);
+            if (window.isDebug) console.log("[onBack] " + this.sectionBound + " " + this.hostType + " " + this.pid);//, this.host);
             return await this.back(false);
         } else return false;
     }
 
-    onBlur() {
+    async onBlur() {
         if (this.isShowing) {
-            console.log("[onBlur] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid);//, this.host);
-            if (this.intent?.onBlur != null) for (var item of this.intent.onBlur) if (item.from == this.hostType && !item.disabled) this.processAction(item);
-            if (this.handler?.onBlur != null) this.handler.onBlur(this);
             this.#isFocused = false;
+            if (window.isDebug) console.log("[onBlur] " + this.sectionBound + " " + this.hostType + " " + this.pid);//, this.host);
+            if (this.intent?.onBlur != null) for (var item of this.intent.onBlur) if (item.from == this.hostType && !item.disabled) await this.processAction(item);
+            if (this.handler?.onBlur != null) await this.handler.onBlur(this);
             return true;
         } else return false;
     }
 
-    onHide(fullyHide) {
+    async onHide(fullyHide) {
         if (this.isShowing) {
-            console.log("[onHide] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid, this.host);
-            if (this.intent?.onHide != null) for (var item of this.intent.onHide) if (item.from == this.hostType && !item.disabled) this.processAction(item);
-            if (this.handler?.onHide != null) this.handler.onHide(this, fullyHide);
             this.#isShowing = false;
+            if (window.isVerbosely) console.log("[onHide] " + this.sectionBound + " " + this.hostType + " " + this.pid, this.host);
+            else if (window.isDebug) console.log("[onHide] " + this.sectionBound + " " + this.hostType + " " + this.pid);
+            if (this.intent?.onHide != null) for (var item of this.intent.onHide) if (item.from == this.hostType && !item.disabled) await this.processAction(item);
+            if (this.handler?.onHide != null) await this.handler.onHide(this, fullyHide);
+            if (this.intent?.bringOnBack != null && this.intent.bringOnBack.pid != n) {
+                const bringOnBack = this.intent.bringOnBack;
+                const isNotAssignedHostType = bringOnBack.hostType == n;
+                const isMatchHostType = bringOnBack.hostType == this.hostType;
+                if ((this.isStatic && isMatchHostType) || this.isClosing && (isNotAssignedHostType || isMatchHostType)) {
+                    const pid = bringOnBack.pid;
+                    delete this.intent.bringOnBack;
+                    if (window.isDebug) console.log("Bringing on back to " + pid);
+                    postQueue(_ => pageManager.bringPage(pid));
+                }
+            }
             return true;
         } else return false;
     }
 
-    onClose(isOnRelease = false) {
+    async onClose(isTermination = false, isOnRelease = false) {
         if (this.isOpened && (isOnRelease || !this.isStatic)) {
-            console.log("[onClose] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid);//, this.host);
-            if (this.intent?.onClose != null) for (var item of this.intent.onClose) if (item.from == this.hostType && !item.disabled) this.processAction(item);
-            if (this.handler?.onClose != null) this.handler.onClose(this);
             this.#isOpened = false;
+            if (window.isDebug) console.log("[onClose] " + this.sectionBound + " " + this.hostType + " " + this.pid);//, this.host);
+            if (this.intent?.onClose != null) for (var item of this.intent.onClose) if (item.from == this.hostType && !item.disabled) await this.processAction(item);
+            if (this.handler?.onClose != null) await this.handler.onClose(this);
+            if (this.intent?.bringOnBack != null && this.intent.bringOnBack.pid != n) {
+                const bringOnBack = this.intent.bringOnBack;
+                const isNotAssignedHostType = bringOnBack.hostType == n;
+                const isMatchHostType = bringOnBack.hostType == this.hostType;
+                if (isNotAssignedHostType || isMatchHostType) {
+                    const pid = bringOnBack.pid;
+                    delete this.intent.bringOnBack;
+                    if (window.isDebug) console.log("Bringing on back to " + pid);
+                    postQueue(_ => pageManager.bringPage(pid));
+                }
+            }
             return true;
         } else return false;
     }
 
-    onRelease(remove) {
-        if (this.isStatic) this.close(false, true);
+    async onRelease(remove) {
+        if (!this.isReleasing) this.#isReleasing = true;
+        if (this.isStatic) await this.close(false, true);
         const removal = remove == null ? "leave" : (remove ? "remove" : "empty")
-        console.log("[onRelease(" + removal + ")] " + this.sectionBound + " " + this.hostType + " " + EstreUiPage.from(this)?.pid);//, this.host);
-        if (this.handler?.onRelease != null) this.handler.onRelease(this, remove);
-        if (this.intent?.onRelease != null) for (var item of this.intent.onRelease) if (item.from == this.hostType && !item.disabled) this.processAction(item);
+        if (window.isDebug) console.log("[onRelease(" + removal + ")] " + this.sectionBound + " " + this.hostType + " " + this.pid);//, this.host);
+        if (this.handler?.onRelease != null) await this.handler.onRelease(this, remove);
+        if (this.intent?.onRelease != null) for (var item of this.intent.onRelease) if (item.from == this.hostType && !item.disabled) await this.processAction(item);
     }
 
 
@@ -1654,7 +1939,7 @@ class EstrePageHandle {
                     if (data.host != null) {
                         const handle = this.getHost(data.host);
                         if (data.time != null && !isNaN(data.time)) {
-                            setTimeout(() => handle?.close(), parseInt(data.time));
+                            setTimeout(_ => handle?.close(), parseInt(data.time));
                         }
                     }
                     break;
@@ -1678,6 +1963,8 @@ class EstrePageHandle {
     applyActiveStruct($host = this.$host, replaceHandles = false) {
         this.initContentBrokers($host);
         this.initLiveElement($host, replaceHandles);
+
+        return this.handler.onApplied?.(this, this.intent?.data, this.intent, $host, replaceHandles);
     }
 
     applyActiveStructLocalBind($host = this.$host) {
@@ -1988,10 +2275,11 @@ class EstrePageHandle {
     initLiveElement($host = this.$host, replaceHandles = false) {
         this.initHandles($host, replaceHandles);
         this.initPassiveLinks($host);
+        this.initLottieLoaders($host);
     }
 
     releaseHandles($host = this.$host) {
-        EstreHandle.releaseHandles($host, this);
+        if ($host != null) EstreHandle.releaseHandles($host, this);
     }
 
     initHandles($host = this.$host, replace = false) {
@@ -2007,21 +2295,31 @@ class EstrePageHandle {
     initInternalLink($host = this.$host) {
         if ($host.is(ax(eds.openTarget) + ax(eds.openContainer) + ax(eds.openId))) this.setEventInternalLink($host[0]);
         const $links = $host.find(ax(eds.openTarget) + ax(eds.openContainer) + ax(eds.openId));
-        for (var item of $links) this.setEventInternalLink(item);
+        for (const item of $links) this.setEventInternalLink(item);
     }
 
     initPageLink($host = this.$host) {
         if ($host.is(ax(eds.closePage))) this.setEventPageCloseLink($host[0]);
         const $closeLinks = $host.find(ax(eds.closePage));
-        for (var item of $closeLinks) this.setEventPageCloseLink(item);
+        for (const item of $closeLinks) this.setEventPageCloseLink(item);
         
         if ($host.is(ax(eds.openPage))) this.setEventPageOpenLink($host[0]);
         const $openLinks = $host.find(ax(eds.openPage));
-        for (var item of $openLinks) this.setEventPageOpenLink(item);
+        for (const item of $openLinks) this.setEventPageOpenLink(item);
 
         if ($host.is(ax(eds.showPage))) this.setEventPageShowLink($host[0]);
         const $showLinks = $host.find(ax(eds.showPage));
-        for (var item of $showLinks) this.setEventPageShowLink(item);
+        for (const item of $showLinks) this.setEventPageShowLink(item);
+    }
+
+    initLottieLoaders($host = this.$host) {
+        const $loaders = $host.find(uis.dotlottieLoader);
+        for (const loader of $loaders) {
+            const player = doc.ce(dlp);
+            for (const { name, value } of loader.attributes) player.setAttribute(name, value);
+            loader.after(player);
+            loader.remove();
+        }
     }
 
 
@@ -2034,7 +2332,7 @@ class EstrePageHandle {
     setEventInternalLink(item) {
         const handle = this;
 
-        this.#internalLinkEvent ??= function(e) {
+        this.#internalLinkEvent ??= async function(e) {
             e.preventDefault();
 
             const $this = $(this);
@@ -2044,10 +2342,23 @@ class EstrePageHandle {
             const targetBound = targetSet[targetSet.length < 2 ? 0 : 1];
             const container = $this.attr(eds.openContainer);
             const id = $this.attr(eds.openId);
-            const action = $this.attr(eds.openAction);
+            const action = $this.attr(eds.openAction)?.let(it => isEmpty(it) ? n : it);
+            const data = $this.attr(eds.openData)?.let(it => isEmpty(it) ? n : it.let(_ => {
+                try {
+                    return Jcodd.parse(it);
+                } catch (exc) {
+                    return Jcodd.parse(it.replace(/'/g, '"'));
+                }
+            }));
+            const bringOnBackPid = $this.attr(eds.openBringOnBack)?.let(it => isEmpty(it) ? n : it == t1 ? handle.pid : it);
 
-            const intent = action != null && action.length > 0 ? { action } : undefined;
-            let pushedIntent = typeof intent == UNDEFINED;
+            let intent = nn(action) ? (nn(data) ? { data, action } : { action }) : nn(data) ? { data } : u;
+            if (nn(bringOnBackPid)) {
+                const bringOnBack = { pid: bringOnBackPid, hostType: container };
+                if (tu(intent)) intent = { bringOnBack };
+                else intent.bringOnBack = bringOnBack;
+            }
+            let pushedIntent = typeof intent == U;
 
             switch (targetBound) {
                 case "root":
@@ -2256,15 +2567,30 @@ class EstrePageHandle {
     }
 
     setEventPageOpenLink(item) {
+        const handle = this;
+
         this.#pageOpenLinkEvent ??= function(e) {
             e.stopPropagation();
 
             const $this = $(this);
 
             const pid = $this.attr(eds.openPage);
-            const action = $this.attr(eds.openAction);
+            const action = $this.attr(eds.openAction)?.let(it => isEmpty(it) ? n : it);
+            const data = $this.attr(eds.openData)?.let(it => isEmpty(it) ? n : it.let(_ => {
+                try {
+                    return Jcodd.parse(it);
+                } catch (exc) {
+                    return Jcodd.parse(it.replace(/'/g, '"'));
+                }
+            }));
+            const bringOnBackPid = $this.attr(eds.openBringOnBack)?.let(it => isEmpty(it) ? n : it == t1 ? handle.pid : it);
 
-            const intent = action != null && action.length > 0 ? { action } : undefined;
+            let intent = nn(action) ? (nn(data) ? { data, action } : { action }) : nn(data) ? { data } : u;
+            if (nn(bringOnBackPid)) {
+                const bringOnBack = { pid: bringOnBackPid };
+                if (tu(intent)) intent = { bringOnBack };
+                else intent.bringOnBack = bringOnBack;
+            }
             let intentReady = typeof intent != UNDEFINED;
 
             if (intentReady) pageManager.bringPage(pid, intent);
@@ -2275,15 +2601,30 @@ class EstrePageHandle {
     }
 
     setEventPageShowLink(item) {
+        const handle = this;
+
         this.#pageShowLinkEvent ??= function(e) {
             e.stopPropagation();
 
             const $this = $(this);
 
             const pid = $this.attr(eds.showPage);
-            const action = $this.attr(eds.showAction);
+            const action = $this.attr(eds.showAction)?.let(it => isEmpty(it) ? n : it);
+            const data = $this.attr(eds.showData)?.let(it => isEmpty(it) ? n : it.let(_ => {
+                try {
+                    return Jcodd.parse(it);
+                } catch (exc) {
+                    return Jcodd.parse(it.replace(/'/g, '"'));
+                }
+            }));
+            const bringOnBackPid = $this.attr(eds.showBringOnBack)?.let(it => isEmpty(it) ? n : it == t1 ? handle.pid : it);
 
-            const intent = action != null && action.length > 0 ? { action } : undefined;
+            let intent = nn(action) ? (nn(data) ? { data, action } : { action }) : nn(data) ? { data } : u;
+            if (nn(bringOnBackPid)) {
+                const bringOnBack = { pid: bringOnBackPid };
+                if (tu(intent)) intent = { bringOnBack };
+                else intent.bringOnBack = bringOnBack;
+            }
             let intentReady = typeof intent != UNDEFINED;
 
             if (intentReady) pageManager.showPage(pid, intent);
@@ -2356,7 +2697,7 @@ class EstrePageHostHandle extends EstrePageHandle {
 
     }
 
-    unregisterConatiner(pageHandle) {
+    unregisterSubPage(pageHandle) {
 
     }
 
@@ -2373,12 +2714,16 @@ class EstrePageHostHandle extends EstrePageHandle {
         return false;
     }
 
-    async closeSubPage(id) {
+    closeSubPage(id, isTermination = false) {
 
     }
 
     terminate() {
 
+    }
+
+    close(isTermination = false) {
+        return super.close(isTermination);
     }
 
     focus() {
@@ -2418,7 +2763,7 @@ class EstreComponent extends EstrePageHostHandle {
         if (this.components[component.id] != null) delete this.components[component.id];
         const index = this.componentList.indexOf(component);
         if (index > -1) this.componentList.splice(index, 1);
-        EstreUiPage.unregisterFrom(component);
+        return EstreUiPage.unregisterFrom(component);
     }
 
 
@@ -2469,13 +2814,14 @@ class EstreComponent extends EstrePageHostHandle {
             
         this.unregister();
 
-        super.release(remove);
+        return super.release(remove);
     }
 
     init(intent) {
-        if (this.register() === false) return true;
+        const page = this.register();
+        if (page === false) return true;
 
-        super.init(intent);
+        super.init(page, intent);
 
         this.initContainers(intent);
 
@@ -2499,7 +2845,7 @@ class EstreComponent extends EstrePageHostHandle {
         return this.registerContainer(element, intent);
     }
 
-    unregisterConatiner(pageHandle) {
+    unregisterSubPage(pageHandle) {
         return this.unregisterConatiner(pageHandle);
     }
 
@@ -2522,20 +2868,21 @@ class EstreComponent extends EstrePageHostHandle {
         this.$container[container.id] = container.$host;
         this.containers[container.id] = container;
         this.containerList.push(container);
-        EstreUiPage.registerOrCommitFrom(container);
-        container.init(intent);
+        const registered = EstreUiPage.registerOrCommitFrom(container);
+        container.init(registered, intent);
         //if (container.isOnTop) container.show(false, false);
         return container;
     }
 
     unregisterConatiner(container) {
         if (container == null) return;
-        EstreUiPage.unregisterFrom(container);
+        const unregitered = EstreUiPage.unregisterFrom(container);
         container.release(!container.isStatic ? true : null);
         if (this.$container[container.id] != null) delete this.$container[container.id];
         if (this.containers[container.id] != null) delete this.containers[container.id];
         const index = this.containerList.indexOf(container);
         if (index > -1) this.containerList.splice(index, 1);
+        return unregitered;
     }
 
 
@@ -2552,12 +2899,12 @@ class EstreComponent extends EstrePageHostHandle {
         return this.bringContainer(id, intent);
     }
 
-    async closeSubPage(id) {
-        return await this.closeContainer(id);
+    closeSubPage(id, isTermination = false) {
+        return this.closeContainer(id, isTermination);
     }
 
     showContainer(id, intent) {
-        if (id != null) {
+        if (id != null && !this.isClosing) {
             const container = this.containers[id];
             if (container != null) {
                 const currentTopHandle = this.currentTop;
@@ -2593,6 +2940,7 @@ class EstreComponent extends EstrePageHostHandle {
     }
 
     openContainer(id, intent) {
+        if (this.isClosing) return false;
         const page = pageManager.getConatiner(id, this.id, this.sectionBound);
         if (page == null) return null;
         if (page.statement == "static") return null;
@@ -2602,26 +2950,30 @@ class EstreComponent extends EstrePageHostHandle {
         return this.registerContainer($container[0], intent);
     }
 
-    async closeContainer(id) {
+    closeContainer(id, isTermination = false) {
         if (id != null) {
             const container = this.containers[id];
             if (container != null) {
-                const task = container.close(false);
-                setTimeout(() => {
-                    const $containers = this.$containers?.filter(naiv(eds.containerId, id));
-                    if ($containers != null) {
-                        if ($containers.length > 0) {
-                            if (this.prevSubPageId != null) {
-                                if (this.showContainer(this.prevSubPageId)) this.prevSubPageId = null;
-                            } else $containers?.[$containers.length - 1]?.pageHandle?.show();
-                        } else setTimeout(() => {
-                            if (this.$containers.filter(naiv(eds.containerId, id)).length < 1) this?.close();
-                        }, 0);
-                    }
-                }, 0);
-                const result = await task;
-                if (!container.isStatic) this.unregisterConatiner(container);
-                return result;
+                const task = container.close(false, isTermination || !container.isStatic);
+                if (!isTermination && !this.isClosing) postAsyncQueue(async _ => {
+                    if (this.isClosing) return;
+                    const target = this.subPages[id];
+                    const subPageList = this.subPageList.filter(it => !it.isClosing && it != target);
+                    if (subPageList.length > 0) {
+                        const prev = this.prevSubPageId;
+                        if (prev != null && id != prev && this.subPages[prev] != null) {
+                            if (this.showSubPage(prev)) this.prevSubPageId = null;
+                        } else subPageList[subPageList.length - 1].show();
+                    } else {
+                        await task;
+                        if (!this.isClosing && !this.isStatic && subPageList.length < 1) this.close(true, true);
+                    };
+                });
+                return postAsyncQueue(async _ => {
+                    const result = await task;
+                    if (isTermination || !container.isStatic) this.unregisterConatiner(container);
+                    return result;
+                });
             }
         }
         return null;
@@ -2634,8 +2986,8 @@ class EstreComponent extends EstrePageHostHandle {
         } else return this.showContainer(id, intent);
     }
 
-    async onCloseContainer() {
-        return await this.currentOnTop?.close();
+    onCloseContainer() {
+        return this.currentOnTop?.close();
     }
 
     show(isRequest = true, setFocus = true) {
@@ -2663,8 +3015,8 @@ class EstreComponent extends EstrePageHostHandle {
     //     } else false;
     // }
 
-    async back(isRequest = true) {
-        return await super.back(isRequest);// || (this.sectionBound == "main" && this.isShowing && this.id != "home" && estreUi.switchRootTab("home"));
+    back(isRequest = true) {
+        return super.back(isRequest);// || (this.sectionBound == "main" && this.isShowing && this.id != "home" && estreUi.switchRootTab("home"));
     }
 
     blur() {
@@ -2676,19 +3028,20 @@ class EstreComponent extends EstrePageHostHandle {
         if ($top != null && $top.length > 0) $targetContainer = $top;
         else if ($containers.length > 0) $targetContainer = $($containers[$containers.length-1]);
 
-        if ($targetContainer != null) {
+        if ($targetContainer != null) return postAsyncQueue(async _ => {
             var processed = false
-            for (var container of $targetContainer) processed |= container.pageHandle?.blur();
+            for (var container of $targetContainer) processed |= await container.pageHandle?.blur();
             return processed;
-        } else return false;
+        });
+        else return false;
     }
 
-    async close(isRequest = true) {
+    close(isRequest = true, isTermination = false) {
         if (isRequest) {
             if (this.isModal) {
-                return this.onTop ? await estreUi.closeModalTab(this.id, this.$host) : false;
+                return this.onTop ? estreUi.closeModalTab(this.id, this.$host) : false;
             } else return false;
-        } else return await super.close(false);
+        } else return super.close(isTermination);
     }
 
 
@@ -2705,21 +3058,27 @@ class EstreComponent extends EstrePageHostHandle {
         return processed;
     }
 
-    onHide() {
-        let $top = this.$containers.filter(asv(eds.onTop, t1));
-        if ($top.length < 1) $top = this.$containers;
-        const container = $top[$top.length - 1]?.pageHandle;
-        if (container != null) {
-            container.onBlur();
-            container.onHide();
+    async onHide() {
+        if (this.$containers != n) {
+            let $top = this.$containers.filter(asv(eds.onTop, t1));
+            if ($top.length < 1) $top = this.$containers;
+            const container = $top[$top.length - 1]?.pageHandle;
+            if (container != null) {
+                await container.onBlur();
+                await container.onHide();
+            }
         }
-        return super.onHide();
+        return await super.onHide();
     }
 
-    onClose() {
-        for (var container of this.containerList.reverse()) container.close();
+    async onClose(isTermination = false, isOnRelease = false) {
+        const closer = [];
 
-        return super.onClose();
+        for (var container of this.containerList.reverse()) closer.push(container.close(true, isTermination));
+
+        await Promise.all(closer);
+
+        return await super.onClose(isTermination, isOnRelease);
     }
 }
 
@@ -2753,7 +3112,7 @@ class EstreMenuComponent extends EstreComponent {
     release(remove) {
 
 
-        super.release(remove);
+        return super.release(remove);
     }
 
     init(intent) {
@@ -2780,10 +3139,10 @@ class EstreMenuComponent extends EstreComponent {
         } else super.show(false, setFocus);
     }
 
-    async close(isRequest = true) {
+    close(isRequest = true, isTermination = false) {
         if (isRequest) {
-            return await estreUi.closeMenuArea(this.id);
-        } else return await super.close(false);
+            return estreUi.closeMenuArea(this.id, isTermination);
+        } else return super.close(false, isTermination);
     }
 }
 
@@ -2817,7 +3176,7 @@ class EstreHeaderComponent extends EstreComponent {
     release(remove) {
 
 
-        super.release(remove);
+        return super.release(remove);
     }
 
     init(intent) {
@@ -2844,10 +3203,10 @@ class EstreHeaderComponent extends EstreComponent {
         } else super.show(false, setFocus);
     }
 
-    async close(isRequest = true) {
+    close(isRequest = true, isTermination = false) {
         if (isRequest) {
-            return await estreUi.closeHeaderBar(this.id);
-        } else return await super.close(false);
+            return estreUi.closeHeaderBar(this.id, isTermination);
+        } else return super.close(false, isTermination);
     }
 }
 
@@ -2881,7 +3240,7 @@ class EstreInstantComponent extends EstreComponent {
     release(remove) {
 
 
-        super.release(remove);
+        return super.release(remove);
     }
 
     init(intent) {
@@ -2908,10 +3267,10 @@ class EstreInstantComponent extends EstreComponent {
         } else super.show(false, setFocus);
     }
 
-    async close(isRequest = true) {
+    close(isRequest = true, isTermination = false) {
         if (isRequest) {
-            return await estreUi.closeInstantBlinded(this.id);
-        } else return await super.close(false);
+            return estreUi.closeInstantBlinded(this.id, isTermination);
+        } else return super.close(false, isTermination);
     }
 }
 
@@ -2945,7 +3304,7 @@ class EstreOverlayComponent extends EstreInstantComponent {
     release(remove) {
 
 
-        super.release(remove);
+        return super.release(remove);
     }
 
     init(intent) {
@@ -2972,10 +3331,10 @@ class EstreOverlayComponent extends EstreInstantComponent {
         } else super.show(false, setFocus);
     }
 
-    async close(isRequest = true) {
+    close(isRequest = true, isTermination = false) {
         if (isRequest) {
-            return await estreUi.closeManagedOverlay(this.id);
-        } else return await super.close(false);
+            return estreUi.closeManagedOverlay(this.id, isTermination);
+        } else return super.close(false, isTermination);
     }
 }
 
@@ -3057,9 +3416,8 @@ class EstreContainer extends EstrePageHostHandle {
         super.release(remove);
     }
 
-    init(intent) {
-        EstreUiPage.from(this).fetchHandler(this);
-        super.init(intent);
+    init(page, intent) {
+        super.init(page, intent);
 
         this.setEventHandle();
 
@@ -3102,18 +3460,21 @@ class EstreContainer extends EstrePageHostHandle {
                 $masterButton.click(function (e) {
                     e.preventDefault();
 
-                    if (inst.#onMasterButtonClick?.(e, this) !== true) {
-                        const articleStepsId = inst.#articleStepsId;
-                        if (articleStepsId != null) {
-                            const current = inst.currentArticleStepIndex;
-                            if (current != NaN) {
-                                const length = inst.stepPagesLength;
-                                const next = current + 1;
-                                const nextId = articleStepsId + "%" + next;
-                                if (next < length) pageManager.bringPage(EstreUiPage.getPidArticle(nextId, inst.id, inst.component.id, inst.component.sectionBound));
+                    postAsyncQueue(_ => {
+                        const handled = (inst.#onMasterButtonClick?.(e, this)) ?? null;
+                        if (handled !== true) {
+                            const articleStepsId = inst.#articleStepsId;
+                            if (articleStepsId != null) {
+                                const current = inst.currentArticleStepIndex;
+                                if (current != NaN) {
+                                    const length = inst.stepPagesLength;
+                                    const next = current + 1;
+                                    const nextId = articleStepsId + "%" + next;
+                                    if (next < length) pageManager.bringPage(EstreUiPage.getPidArticle(nextId, inst.id, inst.component.id, inst.component.sectionBound), handled);
+                                }
                             }
                         }
-                    }
+                    });
 
                     return false;
                 });
@@ -3121,7 +3482,7 @@ class EstreContainer extends EstrePageHostHandle {
 
             this.#$masterFloat.before(doc.ce(div, "master_float_pad"));
             this.#$masterFloatPad = this.$host.find(".master_float_pad");
-            setTimeout(() => this.#$masterFloatPad.css("height",  + this.#$masterFloat.height() + "px"), 0);
+            setTimeout(_ => this.#$masterFloatPad.css("height",  + this.#$masterFloat.height() + "px"), 0);
         }
     }
     
@@ -3187,20 +3548,21 @@ class EstreContainer extends EstrePageHostHandle {
         this.$article[article.id] = article.$host;
         this.articles[article.id] = article;
         this.articleList.push(article);
-        EstreUiPage.registerOrCommitFrom(article);
-        article.init(intent);
-        //if (article.isOnTop) article.show(false, false);
+        const registered = EstreUiPage.registerOrCommitFrom(article);
+        article.init(registered, intent);
+        //if (article.isOnTop) await article.show(false, false);
         return article;
     }
 
     unregisterArticle(article) {
         if (article == null) return;
-        EstreUiPage.unregisterFrom(article);
+        const unregistered = EstreUiPage.unregisterFrom(article);
         article.release(!article.isStatic ? true : null);
         if (this.$article[article.id] != null) delete this.$article[article.id];
         if (this.articles[article.id] != null) delete this.articles[article.id];
         const index = this.articleList.indexOf(article);
         if (index > -1) this.articleList.splice(index, 1);
+        return unregistered;
     }
 
     #initStepNavigation(articleStepsId) {
@@ -3245,9 +3607,11 @@ class EstreContainer extends EstrePageHostHandle {
             }
         }
 
-        if (this.#$stepNavTitleName != null) {
-            if ($currentArticle.length > 0) this.#$stepNavTitleName.text($currentArticle.attr(eds.title));
-        }
+        if ($currentArticle.length > 0) this.setCurrentStepName($currentArticle.attr(eds.title));
+    }
+
+    setCurrentStepName(title) {
+        if (this.#$stepNavTitleName != null) this.#$stepNavTitleName.text(title);
     }
 
     focusMasterButton() {
@@ -3309,17 +3673,18 @@ class EstreContainer extends EstrePageHostHandle {
         if ($top != null && $top.length > 0) $targetArticle = $top;
         else if ($articles.length > 0) $targetArticle = $($articles[$articles.length-1]);
 
-        if ($targetArticle != null) {
+        if ($targetArticle != null) return postAsyncQueue(async _ => {
             var processed = false;
-            for (var article of $targetArticle) processed |= article.pageHandle?.blur();
+            for (var article of $targetArticle) processed |= await article.pageHandle?.blur();
             return processed;
-        } return false;
+        });
+        return false;
     }
 
-    async close(isRequest = true) {
+    close(isRequest = true, isTermination = false) {
         if (isRequest) {
-            return await this.component.closeContainer(this.id);
-        } else return await super.close(false);
+            return this.component.closeContainer(this.id, isTermination) ?? super.close(isTermination);
+        } else return super.close(isTermination);
     }
 
     onShow() {
@@ -3339,30 +3704,35 @@ class EstreContainer extends EstrePageHostHandle {
         return processed;
     }
 
-    onHide() {
-        let $top = this.$articles.filter(asv(eds.onTop, t1));
-        if ($top.length < 1) $top = this.$articles;
-        const article = $top[$top.length - 1]?.pageHandle;
-        if (article != null) {
-            article.onBlur();
-            article.onHide();
+    async onHide() {
+        if (this.$articles != n) {
+            let $top = this.$articles.filter(asv(eds.onTop, t1));
+            if ($top.length < 1) $top = this.$articles;
+            const article = $top[$top.length - 1]?.pageHandle;
+            if (article != null) {
+                await article.onBlur();
+                await article.onHide();
+            }
         }
-        return super.onHide();
+        return await super.onHide();
     }
 
-    onClose() {
-        if (super.onClose()) { 
-            const stepped = [];
-            for (var id in this.articles) if (id.indexOf(this.#articleStepsId + "%") === 0) stepped.push(id);
-            if (stepped.length > 0) {
-                const sorted = stepped.sort();
-                for (var i=sorted.length-1; i>-1; i--) this.closeArticle(sorted[i]);
-            } else {
-                for (var article of this.articleList.reverse()) article.close();
-            }
+    async onClose(isTermination = false, isOnRelease = false) {
+        const stepped = [];
+        for (var id in this.articles) if (id.indexOf(this.#articleStepsId + "%") === 0) stepped.push(id);
 
-            return true;
-        } else return false;
+        const closer = [];
+
+        if (stepped.length > 0) {
+            const sorted = stepped.sort();
+            for (var i=sorted.length-1; i>-1; i--) closer.push(this.closeArticle(sorted[i], isTermination));
+        } else {
+            for (var article of this.articleList.reverse()) closer.push(article.close(true, isTermination));
+        }
+
+        await Promise.all(closer);
+
+        return super.onClose(isTermination, isOnRelease);
     }
 
 
@@ -3379,17 +3749,17 @@ class EstreContainer extends EstrePageHostHandle {
         return this.bringArticle(id, intent);
     }
 
-    async closeSubPage(id) {
-        return await this.closeArticle(id);
+    closeSubPage(id, isTermination = false) {
+        return this.closeArticle(id, isTermination);
     }
 
     showArticle(id, intent) {
-        if (id != null) {
+        if (id != null && !this.isClosing) {
             const $target = this.$article[id];
             if ($target != null && $target.length > 0) {
                 const onlyOne = this.$articles.filter(ntc("dummy")).length === 1;
                 const $currentTop = this.$articles.filter(asv(eds.onTop, t1));
-                //console.log($currentTop);
+                //console.log("current top: ", $currentTop);
                 const currentTopHandle = this.currentTop;
                 const currentTopHandleId = currentTopHandle.id;
                 if (id != currentTopHandleId && currentTopHandleId != this.prevSubPageId) {
@@ -3407,22 +3777,22 @@ class EstreContainer extends EstrePageHostHandle {
                     const targetOnTop2 = isNext ? "+" : "-";
                     if ($currentTop.length > 0) {
                         $currentTop.attr(eds.onTop, currentOnTop1);
-                        setTimeout(() => {
+                        setTimeout(async _ => {
                             for (var currentTop of $currentTop) if (currentTop.dataset.onTop == currentOnTop1) {
-                                currentTop.pageHandle?.blur();
-                                currentTop.pageHandle?.onHide();
+                                await currentTop.pageHandle?.blur();
+                                await currentTop.pageHandle?.onHide();
                                 //currentTop.dataset.onTop = "";
                             }
                             $currentTop.attr(eds.onTop, null);
                         }, cvt.t2ms($currentTop.css(a.trdr)));
                     }
                     $target.attr(eds.onTop, targetOnTop1);
-                    setTimeout(() => {
+                    setTimeout(_ => {
                         if ($target?.attr(eds.onTop) == targetOnTop1) {
                             $target?.[0].pageHandle?.onOpen();
                             $target?.[0].pageHandle?.onShow();
                             $target?.attr(eds.onTop, targetOnTop2);
-                            setTimeout(() => {
+                            setTimeout(_ => {
                                 if ($target?.attr(eds.onTop) == targetOnTop2) {
                                     $target?.attr(eds.onTop, t1);
                                     $target?.[0].pageHandle?.focus();
@@ -3470,6 +3840,7 @@ class EstreContainer extends EstrePageHostHandle {
     }
 
     openArticle(id, intent) {
+        if (this.isClosing) return false;
         const page = pageManager.getArticle(id, this.id, this.component.id, this.component.sectionBound);
         if (page == null) return null;
         if (page.statement == "static") return null;
@@ -3500,28 +3871,30 @@ class EstreContainer extends EstrePageHostHandle {
         } else return this.showArticle(id, intent);
     }
 
-    async closeArticle(id) {
+    closeArticle(id, isTermination = false) {
         if (id != null) {
             const article = this.articles[id];
             if (article != null) {
-                const task = article.close(false);
-                setTimeout(() => {
-                    const $articles = this.$articles?.filter(naiv(eds.articleId, id));
-                    if ($articles != null) {
-                        if ($articles.length > 0) {
-                            if (this.prevSubPageId != null) {
-                                if (this.showArticle(this.prevSubPageId)) this.prevSubPageId = null;
-                            } else {
-                                $articles?.[$articles.length - 1]?.pageHandle?.show();
-                            }
-                        } else setTimeout(() => {
-                            if (this.$articles.filter(naiv(eds.articleId, id)).length < 1) this?.close();
-                        }, 0);
-                    }
-                }, 0);
-                const result = await task;
-                if (!article.isStatic) this.unregisterArticle(article);
-                return result;
+                const task = article.close(false, isTermination || !article.isStatic);
+                if (!isTermination && !this.isClosing) postAsyncQueue(async _ => {
+                    if (this.isClosing) return;
+                    const target = this.subPages[id];
+                    const subPageList = this.subPageList.filter(it => !it.isClosing && it != target);
+                    if (subPageList.length > 0) {
+                        const prev = this.prevSubPageId;
+                        if (prev != null && id != prev && this.subPages[prev] != null) {
+                            if (this.showSubPage(prev)) this.prevSubPageId = null;
+                        } else subPageList[subPageList.length - 1].show();
+                    } else {
+                        await task;
+                        if (!this.isClosing && !this.isStatic && subPageList.length < 1) this.close(true, true);
+                    };
+                });
+                return postAsyncQueue(async _ => {
+                    const result = await task;
+                    if (isTermination || !article.isStatic) this.unregisterArticle(article);
+                    return result;
+                });
             }
         }
         return null;
@@ -3577,12 +3950,11 @@ class EstreArticle extends EstrePageHandle {
     release(remove) {
         this.releaseHandles();
 
-        super.release(remove);
+        return super.release(remove);
     }
 
-    init(intent) {
-        EstreUiPage.from(this).fetchHandler(this);
-        super.init(intent);
+    init(page, intent) {
+        super.init(page, intent);
 
         this.applyActiveStructAfterBind();
         return this;
@@ -3590,7 +3962,7 @@ class EstreArticle extends EstrePageHandle {
 
     pushIntent(intent, onInit = false) {
         if (super.pushIntent(intent, onInit)) {
-            console.log("on called data bind - " + EstreUiPage.from(this).pid);
+            if (window.isDebug) console.log("on called data bind - " + this.pid);
             this.applyActiveStruct();
         }
     }
@@ -3601,8 +3973,8 @@ class EstreArticle extends EstrePageHandle {
     }
 
     unregisterHandle(specifier, handle) {
-        const index = this.handles[specifier].indexOf(handle);
-        this.handles[specifier].splice(index, 1);
+        const index = this.handles[specifier]?.indexOf(handle);
+        this.handles[specifier]?.splice(index, 1);
     }
 
 
@@ -3612,10 +3984,10 @@ class EstreArticle extends EstrePageHandle {
         } else return super.show(false, setFocus);
     }
 
-    async close(isRequest = true) {
+    close(isRequest = true, isTermination = false) {
         if (isRequest) {
-            return await this.container.closeArticle(this.id);
-        } else return await super.close(false);
+            return this.container.closeArticle(this.id, isTermination) ?? super.close(isTermination);
+        } else return super.close(isTermination);
     }
 
 
@@ -3692,11 +4064,14 @@ class EstrePageHandler {
         if (!handle.isStatic) {
             const pid = EstreUiPage.from(handle).pid;
             const intent = handle.intent;
-            if (handle.close()) return pageManager.bringPage(pid, intent);
-            else {
-                handle.show();
-                return false;
-            }
+            return postAsyncQueue(async _ => {
+                if (await handle.close()) {
+                    return pageManager.bringPage(pid, intent);
+                } else {
+                    handle.show();
+                    return false;
+                }
+            });
         } else return false;
     }
 
@@ -3705,15 +4080,15 @@ class EstrePageHandler {
             handle.sectionBound == "blind" || !handle.isStatic ? await handle.close() : false);
     }
 
-    onHide(handle, fullyHide) {
+    async onHide(handle, fullyHide) {
 
     }
 
-    onClose(handle) {
+    async onClose(handle) {
 
     }
 
-    onRelease(handle, remove) {
+    async onRelease(handle, remove) {
 
     }
 }
@@ -3725,18 +4100,28 @@ class EstreLottieAnimatedHandler extends EstrePageHandler {
     get lottie() { return this.$lottie?.[0]; }
     get player() { return this.lottie?.getLottie(); }
 
-    onBring(handle) {
+    async onBring(handle) {
         this.$container = handle.$host;
         this.$article = this.$container.find(ar + aiv(eds.articleId, "main"));
+    }
+
+    onOpen(handle) {
         this.$lottie = this.$article.find(dlp);
     }
 
     onShow(handle) {
-        this.player?.play();
+        const player = this.player;
+        if (player != n) player.play();
+        else this.lottie?.addEventListener("ready", e => { e.target.play(); })
     }
 
     onHide(handle) {
         this.player?.pause();
+    }
+
+    onClose(handle) {
+        this.player?.stop();
+        this.player?.destroy();
     }
 }
 
@@ -3748,18 +4133,26 @@ class EstreDialogPageHandler extends EstrePageHandler {
     $title;
     $backer;
     $closer;
+    $content;
+    $message;
     $options;
     $actions;
+
+    handleSwipeHandler;
 
     onBring(handle) {
         this.$container = handle.$host;
         this.$article = this.$container.find(ar + aiv(eds.articleId, "main"));
         this.$dialog = this.$article.find(div + cls + "dialog");
-        this.$handle = this.$dialog.find(div + cls + "handle")
-        this.$title = this.$dialog.find(div + cls + "title")
-        this.$backer = this.$title.find(btn + cls + "back")
-        this.$closer = this.$title.find(btn + cls + "close")
+        this.$handle = this.$dialog.find(div + cls + "handle");
+        this.$title = this.$dialog.find(div + cls + "title");
+        this.$backer = this.$title.find(btn + cls + "back");
+        this.$closer = this.$title.find(btn + cls + "close");
+        this.$message = this.$dialog.find(div + cls + "message");
         this.$options = this.$dialog.find(div + cls + "options");
+        this.$content = this.$dialog.find(div + cls + "content");
+        if (this.$message.length < 1) this.$message = this.$content.find(div + cls + "message");
+        if (this.$options.length < 1) this.$options = this.$content.find(div + cls + "options");
         this.$actions = this.$dialog.find(div + cls + "actions");
 
         if (handle.intent?.data?.backButton === true) this.$dialog.attr("data-back", t1);
@@ -3776,10 +4169,10 @@ class EstreDialogPageHandler extends EstrePageHandler {
             return false;
         });
         this.$dialog.click(function (e) {
-            e.preventDefault();
+            // e.preventDefault();
             e.stopPropagation();
             
-            return false;
+            // return false;
         });
         this.$dialog.keydown(function (e) {
             if (e.keyCode == 27) {
@@ -3804,7 +4197,10 @@ class EstreDialogPageHandler extends EstrePageHandler {
 
             return false;
         });
-        //this.$handler; //<= 스와이프 핸들러 적용
+        if (this.$handle.length > 0) this.handleSwipeHandler = new EstreSwipeHandler(this.$handle).setStopPropagation().setPreventDefault().setPreventAll().unuseX().setThresholdY(1).setDropStrayed(false).setResponseBound(this.$dialog).setOnUp(function (grabX, grabY, handled, canceled, directed) {
+            const handledDirection = this.handledDirection;
+            if (handled && handledDirection == "down" && Math.abs(grabY) > 80) handle.close();
+        });
         this.$actions.find(inp + cor + btn).on("keydown", function (e) {
             if (e.keyCode == 27) {
                 e.preventDefault();
@@ -3814,6 +4210,19 @@ class EstreDialogPageHandler extends EstrePageHandler {
                 return false;
             }
         });
+
+        
+        const data = this.intentData;
+        if (data?.containerBlindColor != n) this.$container.css("background-color", data.containerBlindColor);
+        if (data?.articleBlindColor != n) this.$article.css("background-color", data.articleBlindColor);
+        if (data?.bgColor != n) this.$dialog.css("background-color", data.bgColor);
+    }
+
+    onIntentUpdated(handle, intent) {
+        const data = intent?.data;
+        if (data?.containerBlindColor != n) this.$container.css("background-color", data.containerBlindColor);
+        if (data?.articleBlindColor != n) this.$article.css("background-color", data.articleBlindColor);
+        if (data?.bgColor != n) this.$dialog.css("background-color", data.bgColor);
     }
 
     async onBack(handle) {
@@ -3844,6 +4253,8 @@ class EstreAlertDialogPageHandler extends EstreDialogPageHandler {
             handle?.close();
             return false;
         });
+
+        this.$confirm.focus();
     }
 
     onFocus(handle) {
@@ -3881,7 +4292,7 @@ class EstreConfirmDialogPageHandler extends EstreDialogPageHandler {
             handle?.close();
             return false;
         });
-        if (handle?.intent?.data?.callbackNeutral == null) this.$neutral.hide();
+        if (handle?.intent?.data?.callbackNeutral == null) this.$neutral.remove();
         else this.$neutral.click(function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -3889,6 +4300,8 @@ class EstreConfirmDialogPageHandler extends EstreDialogPageHandler {
             handle?.close();
             return false;
         });
+
+        this.$negative.focus();
     }
 
     onFocus(handle) {
@@ -3919,6 +4332,26 @@ class EstrePromptDialogPageHandler extends EstreDialogPageHandler {
                 return false;
             }
         });
+        this.$input.on("focus", function (e) {
+            handle?.intent?.onPromptFocus?.(this, this.value, e);
+        });
+        this.$input.on("input paste cut", function (e) {
+            handle?.intent?.onPromptInput?.(this, this.value, e);
+        });
+        this.$input.on("paste", function (e) {
+            try {
+                const pasteText = e.originalEvent.clipboardData.getData('text/plain');
+                handle?.intent?.onPromptPaste?.(this, pasteText, this.value, e);
+            } catch (err) {
+                console.error(err);
+            }
+        });
+        this.$input.on("change", function (e) {
+            handle?.intent?.onPromptChange?.(this, this.value, e);
+        });
+        this.$input.on("blur", function (e) {
+            handle?.intent?.onPromptBlur?.(this, this.value, e);
+        });
         this.$confirm.click(function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -3926,6 +4359,8 @@ class EstrePromptDialogPageHandler extends EstreDialogPageHandler {
             handle?.close();
             return false;
         });
+
+        this.$input.focus();
     }
 
     onFocus(handle) {
@@ -3953,6 +4388,8 @@ class EstreOptionDialogPageHandler extends EstreDialogPageHandler {
             handle?.close();
             return false;
         });
+
+        this.$optionItems[0]?.focus();
     }
 
     onFocus(handle) {
@@ -4054,6 +4491,8 @@ class EstreSelectionDialogPageHandler extends EstreDialogPageHandler {
 
         const min = this.intentData?.minSelection ?? 0;
         if (min > 0 && this.$selected.length < min) this.$confirm.prop(m.d, true);
+
+        this.$confirm.focus();
     }
 
     onFocus(handle) {
@@ -4125,6 +4564,22 @@ class EstreUiPage {
                 this.$pageTitle.html(title);
             }
 
+            setAppbarLeftToolSet(frostOrCold, matchReplacer, dataName = "frozen") {
+                const exactContainer = this.handle.currentOnTop;
+                const $exactArticle = exactContainer?.$article?.["left"];
+                const $exactToolSet = $exactArticle?.find(nv + cls + "tool_set");
+                if ($exactToolSet != null) {
+                    const nodes = [];
+                    if (isNotNully(frostOrCold)) {
+                        for (const toolset of $exactToolSet) toolset.alone(frostOrCold, matchReplacer)?.let(it => nodes.push(...it));
+                    } else {
+                        for (const toolset of $exactToolSet) toolset.melt(matchReplacer, dataName)?.let(it => nodes.push(...it));
+                    }
+                    this.handle.applyActiveStructAfterBind($exactToolSet);
+                    return nodes;
+                } return null;
+            }
+
             setAppbarRightToolSet(frostOrCold, matchReplacer, dataName = "frozen") {
                 const exactContainer = this.handle.currentOnTop;
                 const $exactArticle = exactContainer?.$article?.["right"];
@@ -4153,7 +4608,7 @@ class EstreUiPage {
                 try {
                     return this.cw?.history;
                 } catch (ex) {
-                    console.error(ex);
+                    if (window.isLogging) console.error(ex);
                     return null;
                 }
             }
@@ -4161,7 +4616,7 @@ class EstreUiPage {
                 try {
                     return this.cw?.location;
                 } catch (ex) {
-                    console.error(ex);
+                    if (window.isLogging) console.error(ex);
                     return null;
                 }
             }
@@ -4199,13 +4654,13 @@ class EstreUiPage {
                     try {
                         url = this.contentWindow.location.href;
                     } catch (ex) {
-                        console.error(ex);
+                        if (window.isLogging) console.error(ex);
                     }
                     let title = "";
                     try {
                         title = this.contentWindow.document.title;
                     } catch (ex) {
-                        console.error(ex);
+                        if (window.isLogging) console.error(ex);
                     }
 
                     if (handler.intentData.fixedTitle == null) handler.$title.text(title);
@@ -4276,10 +4731,26 @@ class EstreUiPage {
 
         },
 
-        "$i&o=toastUpSlide#onRunning^": class extends EstreLottieAnimatedHandler {
+        "$i&o=interaction#onRunning^": class extends EstreLottieAnimatedHandler {
+            isTriggeredCancellation = f;
 
+            onBack(handle) {
+                const cancellationExceeds = this.intentData?.cancellationExceeds ?? 3;
+                if (this.isTriggeredCancellation || this.intentData?.blockBack) {
+                    return true;
+                } else if (backHolds < cancellationExceeds - 1) {
+                    return onBackWhile(handle);
+                } else if (backHolds == cancellationExceeds - 1) {
+                    const instanceOrigin = latestIO;
+                    backHolds = 0;
+                    this.isTriggeredCancellation = t;
+                    this.intentData?.callbackCancellation?.();
+                    postQueue(_ => go(instanceOrigin));
+                    return handle.close();
+                }
+            }
         },
-        "$i&o=toastUpSlide#onProgress^": class extends EstreLottieAnimatedHandler {
+        "$i&o=interaction#onProgress^": class extends EstreLottieAnimatedHandler {
             get perfectValue()      { return 1000; }    // 100% value
             get zeroPosition()      { return 15; }      // 0% frame
             get halfPosition()      { return 75; }      // 50% frame
@@ -4316,7 +4787,7 @@ class EstreUiPage {
                         player.setSegment(0, handle.handler.zeroPosition);
                         player.addEventListener("complete", function (e) {
                             handle.handler.isRunning = false;
-                            // console.log("onComplete: ", player.firstFrame + player.currentFrame);
+                            if (window.isVerbosely) console.log("onComplete: ", player.firstFrame + player.currentFrame);
                             if (handle.intent.data.binded?.current == null) {
                                 handle.close();
                             }
@@ -4341,7 +4812,7 @@ class EstreUiPage {
 
                 if (player != null) {
                     player.pause();
-                    // console.log(value, current, player.firstFrame, player.currentFrame, player.firstFrame + player.currentFrame);
+                    if (window.isVerbosely) console.log(value, current, player.firstFrame, player.currentFrame, player.firstFrame + player.currentFrame);
 
                     const begin = player.firstFrame + player.currentFrame;//this.zeroPosition + parseInt(this.interFrames * (parseInt(current) / this.perfectValue));
                     const end = value != null ?
@@ -4352,7 +4823,7 @@ class EstreUiPage {
 
                     const isForward = end >= begin;
 
-                    // console.log("begin: " + begin + ", end: " + end + ", isForward: " + isForward);
+                    if (window.isVerbosely) console.log("begin: " + begin + ", end: " + end + ", isForward: " + isForward);
 
                     if (isForward) player.setSegment(begin, end);
                     else player.setSegment(end, begin);
@@ -4386,21 +4857,21 @@ class EstreUiPage {
             onBring(handle) {
                 this.$postBlock = handle.$host.find(".post_block");
                 EstreNotationManager.current = handle.intent;
-                // console.log("pushed", handle.intent);
+                if (window.isVerbosely) console.log("pushed", handle.intent);
             }
 
             onOpen(handle) {
                 this.$postBlock.click(function (e) {
                     e.preventDefault();
 
-                    // console.log("clicked: ", handle.intent);
+                    if (window.isVerbosely) console.log("clicked: ", handle.intent);
                     handle.intent?.onTakeInteraction?.(handle.intent);
 
                     return false;
                 });
 
-                // console.log("showing: ", handle.intent);
-                setTimeout(() => handle.close(), handle.intent?.data?.showTime ?? 3000);
+                if (window.isVerbosely) console.log("showing: ", handle.intent);
+                setTimeout(_ => handle.close(), handle.intent?.data?.showTime ?? 3000);
             }
 
             onClose(handle) {
@@ -4579,6 +5050,7 @@ class EstreUiPage {
     }
 
     #instances = [];
+    get instances() { return this.#instances; }
 
     #$component = null;
     #$container = null;
@@ -4662,8 +5134,7 @@ class EstreUiPage {
         const exist = pageManager.get(euiPage.pid);
         if (exist == null) return euiPage.commit();
         else if (euiPage.statement == "instant") return exist.register(euiPage.$element);
-        else return null;
-
+        else return euiPage;
     }
 
     static unregisterFrom($element) {
@@ -4737,7 +5208,7 @@ class EstreUiPage {
         try {
             this.setComponent($component[0].id);
         } catch (ex) {
-            // console.log(ex);
+            if (window.isDebug) console.error(ex);
             return null;
         }
 
@@ -4762,7 +5233,7 @@ class EstreUiPage {
         try {
             this.setContainer($container.attr(eds.containerId));
         } catch (ex) {
-            // console.log(ex);
+            if (window.isDebug) console.error(ex);
             return null;
         }
 
@@ -4771,7 +5242,7 @@ class EstreUiPage {
 
         if ($component == null) $component = $container.closest("section");
 
-            this.setComponentRefer($component);
+        this.setComponentRefer($component);
 
         this.#$container = $container;
 
@@ -4784,7 +5255,7 @@ class EstreUiPage {
         try {
             this.setArticle($article.attr(eds.articleId));
         } catch (ex) {
-            // console.log(ex);
+            if (window.isDebug) console.error(ex);
             return null;
         }
 
@@ -4793,7 +5264,7 @@ class EstreUiPage {
 
         if ($container == null) $container = $article.closest("div.container");
 
-            this.setContainerRefer($container, $component);
+        this.setContainerRefer($container, $component);
 
         this.#$article = $article;
 
@@ -4824,7 +5295,7 @@ class EstreUiPage {
 
     fetchHandler(pageHandle) {
         const handler = EstreUiPage.getHandler(this.pid);
-        //console.log("pushInstance - " + this.pid + "[" + handle?.handler + "]", handle, handler);
+        if (window.isVerbosely) console.log("pushInstance - " + this.pid + "[" + handle?.handler + "]", handle, handler);
         if (pageHandle != null && handler != null && typeof handler == "function") {
             return pageHandle.setHandler(new handler(pageHandle, EstreUiPage.provider));
         }
@@ -4835,7 +5306,7 @@ class EstreUiPage {
         const $element = this.$element;
         const element = $element[0];
         this.#raw = element.outerHTML;
-        this.#cold = element.coldify(true, true);
+        this.#cold = element.coldify(true, true, false, false);
         if (this.statement == "instant") {
             $element.remove();
             return null;
@@ -4858,7 +5329,7 @@ class EstreUiPage {
         if ($instance instanceof jQuery) for (var item of $instance) this.#pushInstance(item);
         else if ($instance instanceof Element) this.#pushInstance($instance);
         else return;
-        return this.#instances;
+        return this;
     }
 
     unregister($instance) {
@@ -4998,6 +5469,8 @@ class EstreUiPageManager {
         const sections = page.sections;
         if (sections == null) return null;
 
+        if (intent?.bringOnBack != n && intent.bringOnBack.hostType == n) intent.bringOnBack.hostType = page.hostType;
+
         //check open component
         const isIntentNone = typeof intent == UNDEFINED;
         var componentIntentPushed = false;
@@ -5103,7 +5576,7 @@ class EstreUiPageManager {
                     success = targetProcessed.component;
                 }
         }
-        // console.log("targetProcessed: ", targetProcessed);
+        if (window.isVerbosely) console.log("[bringPage] targetProcessed: ", targetProcessed);
         return targetProcessed[page.hostType];
     }
 
@@ -5117,6 +5590,8 @@ class EstreUiPageManager {
         if (page == null) return null;
         const sections = page.sections;
         if (sections == null) return null;
+
+        if (intent?.bringOnBack != n && intent.bringOnBack.hostType == n) intent.bringOnBack.hostType = page.hostType;
 
         const isIntentNone = typeof intent == UNDEFINED;
         var component = sections[page.component];
@@ -5166,7 +5641,7 @@ class EstreUiPageManager {
                     success = targetProcessed.component;
                 }
         }
-        // console.log("targetProcessed: ", targetProcessed);
+        if (window.isVerbosely) console.log("[showPage] targetProcessed: ", targetProcessed);
         return targetProcessed[page.hostType];
     }
 
@@ -5213,55 +5688,59 @@ class EstreUiPageManager {
                 targetProcessed.component = estreUi.switchRootTab("home");
             }
         }
-        // console.log("targetProcessed: ", targetProcessed);
+        if (window.isVerbosely) console.log("[hidePage] targetProcessed: ", targetProcessed);
         return targetProcessed[page.hostType];
     }
 
-    async closePage(pid, closeHost = false, instanceOrigin = null) {
-        if (pid.indexOf("!") > -1) pid = this.#managedPidMap[pid.replace(/^\!/, "")];
-        if (pid == null) return null;
-        if (pid.indexOf("*") > -1) pid = this.extPidMap[pid.replace(/^\*/, "")];
-        if (pid == null) return null;
-        if (pid.indexOf("$") < 0) pid = this.findPid(pid);
-        const page = this.get(pid);
-        if (page == null) return null;
-        const sections = page.sections;
-        if (sections == null) return null;
+    closePage(pid, closeHost = false, instanceOrigin = null) {
+        return postPromise(resolve => {
+            postQueue(async _ => {
+                if (pid.indexOf("!") > -1) pid = this.#managedPidMap[pid.replace(/^\!/, "")];
+                if (pid == null) resolve(null);
+                if (pid.indexOf("*") > -1) pid = this.extPidMap[pid.replace(/^\*/, "")];
+                if (pid == null) resolve(null);
+                if (pid.indexOf("$") < 0) pid = this.findPid(pid);
+                const page = this.get(pid);
+                if (page == null) resolve(null);
+                const sections = page.sections;
+                if (sections == null) resolve(null);
 
-        var component = sections[page.component];
-        if (component == null) return null;
-        var container = null;
-        var article = null;
-        var targetProcessed = { component: null, container: null, article: null };
-        if (page.container != null) {
-            container = component.containers[page.container];
-            if (container != null) {
-                if (page.article != null) {
-                    article = container.articles[page.article];
-                    if (article != null) {
-                        targetProcessed.article = await container.closeArticle(page.article);
+                var component = sections[page.component];
+                if (component == null) resolve(null);
+                var container = null;
+                var article = null;
+                var targetProcessed = { component: null, container: null, article: null };
+                if (page.container != null) {
+                    container = component.containers[page.container];
+                    if (container != null) {
+                        if (page.article != null) {
+                            article = container.articles[page.article];
+                            if (article != null) {
+                                targetProcessed.article = await container.closeArticle(page.article);
+                            }
+                        }
+                        if (page.isContainer || closeHost || (page.isArticle && page.articleIsStatic && container.isArticlesAllyStatic)) {
+                            targetProcessed.container = await component.closeContainer(page.container);
+                        }
                     }
                 }
-                if (page.isContainer || closeHost || (page.isArticle && page.articleIsStatic && container.isArticlesAllyStatic)) {
-                    targetProcessed.container = await component.closeContainer(page.container);
+                if (page.isComponent || closeHost || (!page.isComponent && page.containerIsStatic && component.isContainersAllyStatic)) {
+                    if (page.isOverlay) {
+                        targetProcessed.component = await estreUi.closeManagedOverlay(page.component);
+                    } else if (page.isMenu) {
+                        targetProcessed.component = await estreUi.closeMenuArea(page.component);
+                    } else if (page.isBlinded) {
+                        targetProcessed.component = await estreUi.closeInstantBlinded(page.component);
+                    } else if (component.isModal) {
+                        targetProcessed.component = await estreUi.closeModalTab(page.component, $(component));
+                    } else {
+                        targetProcessed.component = await estreUi.switchRootTab("home");
+                    }
                 }
-            }
-        }
-        if (page.isComponent || closeHost || (!page.isComponent && page.containerIsStatic && component.isContainersAllyStatic)) {
-            if (page.isOverlay) {
-                targetProcessed.component = await estreUi.closeManagedOverlay(page.component);
-            } else if (page.isMenu) {
-                targetProcessed.component = await estreUi.closeMenuArea(page.component);
-            } else if (page.isBlinded) {
-                targetProcessed.component = await estreUi.closeInstantBlinded(page.component);
-            } else if (component.isModal) {
-                targetProcessed.component = await estreUi.closeModalTab(page.component, $(component));
-            } else {
-                targetProcessed.component = estreUi.switchRootTab("home");
-            }
-        }
-        // console.log("targetProcessed: ", targetProcessed);
-        return targetProcessed[page.hostType];
+                if (window.isVerbosely) console.log("[closePage] targetProcessed: ", targetProcessed);
+                resolve(targetProcessed[page.hostType]);
+            });
+        });
     }
 }
 
@@ -5334,12 +5813,15 @@ class EstreHandle {
     // constants
     static #handles = {
         get [uis.unifiedCalendar]() { return EstreUnifiedCalendarHandle; },
+        get [uis.dedicatedCalendar]() { return EstreDedicatedCalanderHandle; },
 
         get [uis.scalable]() { return EstreScalableHandle; },
         get [uis.collapsible]() { return EstreCollapsibleHandle; },
         get [uis.toggleBlock]() { return EstreToggleBlockHandle; },
         get [uis.toggleTabBlock]() { return EstreToggleTabBlockHandle; },
         get [uis.tabBlock]() { return EstreTabBlockHandle; },
+        
+        get [uis.dynamicSectionBlock]() { return EstreDynamicSectionBlockHandle; },
 
         get [uis.numKeypad]() { return EstreNumKeypadHandle; },
 
@@ -5348,10 +5830,13 @@ class EstreHandle {
 
         get [uis.toasterSlot]() { return EstreToasterSlotHandle; },
 
+        get [uis.customSelectorBar]() { return EstreCustomSelectorBarHandle; },
         get [uis.monthSelectorBar]() { return EstreMonthSelectorBarHandle; },
 
 
         get [uis.dateShower]() { return EstreDateShowerHandle; },
+
+        get [uis.exportedContent]() { return EstreExportedContentHandle; },
 
         get [uis.ezHidable]() { return EstreEzHidableHandle; },
         get [uis.fixedAccess]() { return EstreFixedAccessHandle; },
@@ -5382,9 +5867,9 @@ class EstreHandle {
                     if (handleClass.handleName == null) handleClass.handleName = handleName;
                     uis[handleName] = handleSpecfier;
                     this.#registeredHandles[handleSpecfier] = handleClass;
-                } else console.log("Cannot override exist stock handle specfier");
-            } else console.log("Cannot override exist handle name");
-        } else console.log("Cannot register handle after commit");
+                } else if (window.isLogging) console.log("Cannot override exist stock handle specfier");
+            } else if (window.isLogging) console.log("Cannot override exist handle name");
+        } else if (window.isLogging) console.log("Cannot register handle after commit");
     }
 
     static commit() {
@@ -5582,7 +6067,7 @@ class EstreUnifiedCalendarHandle extends EstreHandle {
             for (const entry of entries) {
                 if (entry == this.bound) {
                     this.calendar.beginTransition();
-                    setTimeout(() => this.calendar.endTransition(), this.calendar.transitionTime);
+                    setTimeout(_ => this.calendar.endTransition(), this.calendar.transitionTime);
                 }
             }
         });
@@ -6417,9 +6902,9 @@ class EstreVoidCalendarStructure {
         this.releaseSwipeHandler();
         const inst = this;
         this.swipeHandler = new EstreSwipeHandler(this.$structure, false, false).setOnUp(function(grabX, grabY, handled, canceled, directed) {
-            //console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             const handledDirection = this.handledDirection;
-            //console.log("handledDirection: " + handledDirection);
+            if (window.isVerbosely) console.log("handledDirection: " + handledDirection);
             if (handledDirection != null) {
                 var isNext;
                 switch (handledDirection) {
@@ -6442,25 +6927,25 @@ class EstreVoidCalendarStructure {
                 inst.calendar.beginTransition();
                 switch (unit) {
                     case "year":
-                        // console.log(unit + " " + offsetText + " - setSelectedYear(" + dn.year + ")");
+                        if (window.isVerbosely) console.log(unit + " " + offsetText + " - setSelectedYear(" + dn.year + ")");
                         inst.calendar.setSelectedYear(dn.year);
                         break;
 
                     case "month":
-                        // console.log(unit + " " + offsetText + " - setSelectedMonth(" + dn.year + ", " + dn.month + ")");
+                        if (window.isVerbosely) console.log(unit + " " + offsetText + " - setSelectedMonth(" + dn.year + ", " + dn.month + ")");
                         inst.calendar.setSelectedMonth(dn.year, dn.month);
                         break;
 
                     case "week":
                     case "day":
-                        // console.log(unit + " " + offsetText + " - setSelectedDay(" + dn.year + ", " + dn.month + ", " + dn.date + ")");
+                        if (window.isVerbosely) console.log(unit + " " + offsetText + " - setSelectedDay(" + dn.year + ", " + dn.month + ", " + dn.date + ")");
                         inst.calendar.setSelectedDay(dn.year, dn.month, dn.date);
                         break;
                 }
-                setTimeout(() => { inst.calendar.endTransition(); }, inst.calendar.transitionTime);
+                setTimeout(_ => inst.calendar.endTransition(), inst.calendar.transitionTime);
             }
         }).setOnMove(function(grabX, grabY, handled, dropped, directed) {
-            //console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             // to do implement action preview feedback
         });
     }
@@ -6899,15 +7384,27 @@ class EstreMassiveCalendarStructure extends EstreVoidCalendarStructure {
     }
 
     buildDay(year, month, day, date) {
+        // dateInfo = { isHoliday: number, subjects: "something's day" }
+        const dateInfo = scheduleDataSet.dataHandler?.getLocalizedDateInfo?.(year, month - 1, date);
+
         const dy = doc.ce(div);
         dy.setAttribute(m.cls, "day");
         dy.setAttribute(eds.year, year);
         dy.setAttribute(eds.month, month);
         dy.setAttribute(eds.day, day);
         dy.setAttribute(eds.date, date);
+        if (dateInfo?.holidays != null && dateInfo.holidays > 0) {
+            dy.setAttribute(eds.holiday, dateInfo.holidays);
+        }
         const lb = doc.ce(lbl);
         lb.innerText = "" + date;
         dy.append(lb);
+        if (dateInfo?.subjects != null) {
+            const sj = doc.ce(sp);
+            sj.setAttribute(m.cls, "subjects");
+            sj.innerText = dateInfo.subjects;
+            dy.append(sj);
+        }
         const basic = doc.ce(ul);
         basic.setAttribute(m.cls, "scheduled");
         basic.setAttribute(eds.group, "basic");
@@ -7050,7 +7547,7 @@ class EstreMassiveCalendarStructure extends EstreVoidCalendarStructure {
     setEventMonth(month, count = 0) {
         const inst = this;
         if (!month.isAttached()) {
-            if (count < 3) setTimeout(() => { inst.setEventMonth(month, count+1); }, 0);
+            if (count < 3) setTimeout(_ => inst.setEventMonth(month, count+1), 0);
             return;
         }
 
@@ -7091,7 +7588,7 @@ class EstreMassiveCalendarStructure extends EstreVoidCalendarStructure {
     setEventWeek(week, count = 0) {
         const inst = this;
         if (!week.isAttached()) {
-            if (count < 3) setTimeout(() => { inst.setEventWeek(week, count+1); }, 0);
+            if (count < 3) setTimeout(_ => inst.setEventWeek(week, count+1), 0);
             return;
         }
 
@@ -7149,7 +7646,7 @@ class EstreMassiveCalendarStructure extends EstreVoidCalendarStructure {
     setEventDay(day, count = 0) {
         const inst = this;
         if (!day.isAttached()) {
-            if (count < 3) setTimeout(() => { inst.setEventDay(day, count+1); }, 0);
+            if (count < 3) setTimeout(_ => inst.setEventDay(day, count+1), 0);
             return;
         }
 
@@ -7600,9 +8097,9 @@ class EstreVariableCalendar extends EstreCalendar {
         const v = parseInt(tv);
         this.beginTransition();
         if (currentScale > 3 && v < 3) {
-            setTimeout(() => {
+            setTimeout(_ => {
                 inst.$bound.attr(eds.scale, tv + "");
-                setTimeout(() => {
+                setTimeout(_ => {
                     inst.checkRelaseUnusedCalendarStructure();
                     inst.endTransition();
                     inst.checkLoadSchedule();
@@ -7610,7 +8107,7 @@ class EstreVariableCalendar extends EstreCalendar {
             }, cvt.t2ms(this.unical.$calendarArea.css(a.trdr)));
         } else {
             this.$bound.attr(eds.scale, tv + "");
-            setTimeout(() => {
+            setTimeout(_ => {
                 inst.checkRelaseUnusedCalendarStructure();
                 inst.endTransition();
                 inst.checkLoadSchedule();
@@ -7665,7 +8162,7 @@ class EstreVariableCalendar extends EstreCalendar {
         this.$showToday.change(function(e) {
             inst.beginTransition();
             inst.$bound.attr(eds.showToday, this.checked ? t1 : "");
-            setTimeout(() => { inst.endTransition(); }, inst.transitionTime);
+            setTimeout(_ => inst.endTransition(), inst.transitionTime);
         });    
     }
 
@@ -7693,13 +8190,13 @@ class EstreVariableCalendar extends EstreCalendar {
             if (current == "") {
                 inst.beginTransition();
                 inst.$area.attr(eds.size, 0);
-                setTimeout(() => { inst.endTransition(); }, inst.transitionTime);
+                setTimeout(_ => inst.endTransition(), inst.transitionTime);
             } else {
                 current = parseInt(current);
                 if (current > 0) {
                     inst.beginTransition();
                     inst.$area.attr(eds.size, current - 1);
-                    setTimeout(() => { inst.endTransition(); }, inst.transitionTime);
+                    setTimeout(_ => inst.endTransition(), inst.transitionTime);
                 }
             }
         });
@@ -7729,45 +8226,45 @@ class EstreVariableCalendar extends EstreCalendar {
         var startHeight = null;
         var fallbackSize = null;
         this.areaResizeHandler = new EstreSwipeHandler(this.$areaResizer).unuseX().setThresholdY(1).setDropStrayed(false).setPreventDefault().setPreventAll().setOnDown(function(startX, startY) {
-            // console.log("startX: " + startX + " / startY: " + startY);
+            if (window.isVerbosely) console.log("startX: " + startX + " / startY: " + startY);
             inst.beginTransition();
             $(document.body).attr(eds.onResizing, "v");
             startHeight = inst.$area.height();//.offsetHeight;
             fallbackSize = inst.$area.attr(eds.size);
         }).setOnUp(function(grabX, grabY, handled, canceled, directed) {
-            // console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             $(document.body).attr(eds.onResizing, null);
             const height = parseInt(startHeight + grabY);
             if (handled) {
-                // console.log("fixed - height: " + height + " / startHeight: " + startHeight);
+                if (window.isVerbosely) console.log("fixed - height: " + height + " / startHeight: " + startHeight);
                 inst.$area.css("--height", height + "px");
                 if (inst.$area.attr(eds.size) != "") inst.$area.attr(eds.size, "");
             } else {
-                // console.log("finally fallbacked - startHeight: " + startHeight + ", fallbackSize: " + fallbackSize);
+                if (window.isVerbosely) console.log("finally fallbacked - startHeight: " + startHeight + ", fallbackSize: " + fallbackSize);
                 if (fallbackSize != "") {
                     inst.$area.css("--height", "0px");
                     inst.$area.attr(eds.size, fallbackSize);
                 } else inst.$area.css("--height", height + "px");
             }
-            setTimeout(() => inst.endTransition(), inst.transitionTime);
+            setTimeout(_ => inst.endTransition(), inst.transitionTime);
             startHeight = null;
             fallbackSize = null;
         }).setOnMove(function(grabX, grabY, handled, dropped, directed) {
-            // console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             if (startHeight != null) {
                 const height = parseInt(startHeight + grabY);
                 if (handled) {
-                    // console.log("height: " + height + " / startHeight: " + startHeight);
+                    if (window.isVerbosely) console.log("height: " + height + " / startHeight: " + startHeight);
                     inst.$area.css("--height", height + "px");
                     if (inst.$area.attr(eds.size) != "") inst.$area.attr(eds.size, "");
                 } else {
-                    // console.log("fallback - startHeight: " + startHeight + ", fallbackSize: " + fallbackSize);
+                    if (window.isVerbosely) console.log("fallback - startHeight: " + startHeight + ", fallbackSize: " + fallbackSize);
                     if (fallbackSize != "") {
                         inst.$area.css("--height", "0px");
                         inst.$area.attr(eds.size, fallbackSize);
                     } else inst.$area.css("--height", height + "px");
                 }
-            } // else console.log("ignored");
+            } else if (window.isVerbosely) console.log("ignored");
         });
     }
 
@@ -7792,7 +8289,7 @@ class EstreVariableCalendar extends EstreCalendar {
         this.$structure.attr(eds.focusYear, selected);
         this.beginTransition();
         this.checkSetDayFocused(toScaledBe);
-        setTimeout(() => this.endTransition(), this.transitionTime);
+        setTimeout(_ => this.endTransition(), this.transitionTime);
     }
     
     setSelectedMonth(year, month, toScaledBe) {
@@ -7802,7 +8299,7 @@ class EstreVariableCalendar extends EstreCalendar {
         this.$structure.attr(eds.focusMonth, month);
         this.beginTransition();
         this.checkSetDayFocused(toScaledBe);
-        setTimeout(() => this.endTransition(), this.transitionTime);
+        setTimeout(_ => this.endTransition(), this.transitionTime);
     }
     
     setSelectedWeek(year, month, week, adjoin, toScaledBe) {
@@ -7830,7 +8327,7 @@ class EstreVariableCalendar extends EstreCalendar {
         const onTransition = toScaledBe == null && (this.dateFocused.getMonth() != monthBefore || this.scaleInt > 3);
         if (onTransition) this.beginTransition();
         this.checkSetDayFocused(toScaledBe);
-        if (onTransition) setTimeout(() => this.endTransition(), this.transitionTime);
+        if (onTransition) setTimeout(_ => this.endTransition(), this.transitionTime);
     }
 
     setSelectedDay(year, month, date, toScaledBe) {
@@ -7851,7 +8348,7 @@ class EstreVariableCalendar extends EstreCalendar {
         const onTransition = toScaledBe == null && (fd.month0 != monthBefore || (currentScale == 5 && focusedWeek != weekBefore) || currentScale > 5);
         if (onTransition) this.beginTransition();
         this.checkSetDayFocused(toScaledBe);
-        if (onTransition) setTimeout(() => this.endTransition(), this.transitionTime);
+        if (onTransition) setTimeout(_ => this.endTransition(), this.transitionTime);
     }
 
     checkSetDayFocused(toScaledBe) {
@@ -7892,7 +8389,7 @@ class EstreVariableCalendar extends EstreCalendar {
     setDateIndic(dateSet) {
         const dateIndic = this.$scalers.filter(uis.date).find(c.c + "label");
         dateIndic.text(dateSet.date2d);
-        const divider = EsLocale.get("dateDevider", this.lang);
+        const divider = EsLocale.get("dateDivider", this.lang);
         const seq = [...EsLocale.get("dateSequence", this.lang)].join(divider);
         const prefix = seq.substring(0, seq.indexOf("d"));
         const suffix = seq.substring(seq.indexOf("d") + 1);
@@ -7902,7 +8399,7 @@ class EstreVariableCalendar extends EstreCalendar {
 
     releaseDate(toScaledBe, fd = this.dateSetFocused) {
         const inst = this;
-        if (this.checkLoadCalendarStructure(toScaledBe)) setTimeout(() => {
+        if (this.checkLoadCalendarStructure(toScaledBe)) setTimeout(_ => {
             inst.structure.releaseDateSelected(fd);
             inst.releaseToday();
 
@@ -7995,12 +8492,12 @@ class EstreVariableCalendar extends EstreCalendar {
         this.$structure.attr(eds.transition, Math.max(current - 1, 0));
     }
 
-    checkLoadSchedule() {
+    checkLoadSchedule(forceReload = false) {
         const focusedYear = this.yearIntFocused;
         const basicOrigin = this.basicOrigin;
         const dataOrigin = this.dataOrigin;
         const dateBeginEnd = Escd.getDateBeginEndFrom(focusedYear);
-        if (focusedYear != this.prevFocusedYear) {
+        if (forceReload || focusedYear != this.prevFocusedYear) {
             const tag = basicOrigin != null && basicOrigin != "" ? "|" + basicOrigin : "";
             const groups = ["basic" + tag, ...this.commonGroups];
             if (dataOrigin != "") groups.push("data|" + dataOrigin);
@@ -8038,10 +8535,10 @@ class EstreVariableCalendar extends EstreCalendar {
         }
     }
 
-    releaseCalendarChanges() {
+    releaseCalendarChanges(forceReload = false) {
         this.releaseToday();
 
-        this.checkLoadSchedule();
+        this.checkLoadSchedule(forceReload);
 
         this.pushUpdateFocused(true);
     }
@@ -8061,7 +8558,7 @@ class EstreVariableCalendar extends EstreCalendar {
     notifyBoundChanged(bound, scope) {
         this.beginTransition();
         super.notifyBoundChanged(bound, scope);
-        setTimeout(() => { this.endTransition(); }, this.transitionTime);
+        setTimeout(_ => { this.endTransition(); }, this.transitionTime);
     }
     
 }
@@ -8231,9 +8728,12 @@ class EstreUnifiedScheduler {
     }
 
     buildScheduleItem(info, dateSet) {
+        const dateInfo = scheduleDataSet.dataHandler?.getLocalizedDateInfo?.(dateSet.year, dateSet.month0, dateSet.date);
+        
         const item = doc.ce(li, "division_block schedule_item");
         item.setAttribute(eds.scheduleId, info.id);
         if (info.category != null) item.setAttribute(eds.category, info.category);
+        if (dateInfo?.holidays != null && dateInfo.holidays > 0) item.setAttribute(eds.holiday, dateInfo.holidays);
         const icon = doc.ce(div, "fit_width max_height event_type");
         var span = doc.ce(sp);
         icon.append(span);
@@ -8243,13 +8743,14 @@ class EstreUnifiedScheduler {
         const ruby = doc.ce(rb);
         ruby.append(doc.ce(sp, "month", dateSet.month));
         ruby.append(doc.ce(sp, "date", dateSet.date));
+        ruby.append(doc.ce(sp, "space", "&nbsp; "));
+        ruby.append(doc.ce(sp, "day", dateSet.dayText));
         const rubytext = doc.ce(rt, "week");
         //rubytext.append(doc.ce(sp, "year", info.ymw.year));
         rubytext.append(doc.ce(sp, "month", dateSet.ymw.month));
         rubytext.append(doc.ce(sp, "week", dateSet.ymw.week));
         ruby.append(rubytext);
         datetime.append(ruby);
-        datetime.append(doc.ce(sp, "day", dateSet.dayText));
         var span = doc.ce(sp, "timespan");
         if (info.timeset.isWhole) span.innerText = EsLocale.get("wholeDayShort", this.lang);
         else {
@@ -8270,7 +8771,7 @@ class EstreUnifiedScheduler {
         const $holder = $division.find(c.c + uis.scheduleHolder + aiv(eds.group, group) + aiv(eds.dateId, dateId));
         $division.attr(eds.count, parseInt($division.attr(eds.count)) + list.length);
 
-        // console.log("data to holder - scope: " + scope + ", bound: " + bound + ", group: " + group + ", dateID: " + dateId, list, $content, $page, $division, $holder);
+        if (window.isVerbosely) console.log("data to holder - scope: " + scope + ", bound: " + bound + ", group: " + group + ", dateID: " + dateId, list, $content, $page, $division, $holder);
         // if (scope == "monthly" && bound == "2024.03") throw new Error();
         if ($holder.length > 0) {
             $holder.empty();
@@ -8324,7 +8825,7 @@ class EstreUnifiedScheduler {
             bound = Escd.getBoundBy(offset, bound, scope);
             $page.attr(eds.bound, bound);
             this.constructBound($page, scope, bound);
-            // console.log("requestPushDataForPage - scope: " + scope + ", bound: " + bound + ", offset: " + offset + ", isRecycle: " + isRecycle);
+            if (window.isVerbosely) console.log("requestPushDataForPage - scope: " + scope + ", bound: " + bound + ", offset: " + offset + ", isRecycle: " + isRecycle);
         }
         this.requestPushDataForScheduler(scope, bound);
     }
@@ -8339,7 +8840,7 @@ class EstreUnifiedScheduler {
         // if (dataOrigin != "") groups.push("data|" + dataOrigin);
 
         const dateBeginEnd = Escd.getDateBeginEndFrom(bound, scope);
-        //console.log("requestPushData(" + dateBeginEnd.beginDate + ", " + dateBeginEnd.endDate + ", " + groups + ", this);");
+        if (window.isVerbosely) console.log("requestPushData(" + dateBeginEnd.beginDate + ", " + dateBeginEnd.endDate + ", " + groups + ", this);");
         scheduleDataSet.requestPushData(dateBeginEnd.beginDate, dateBeginEnd.endDate, groups, this);
         
     }
@@ -8379,7 +8880,7 @@ class EstreUnifiedScheduler {
                     const divided = groupId.split("|");
                     const group = divided[0];
                     const originId = divided[1];
-                    // console.log("pushPageData(" + scope + ", " + bound + ", " + group + ", " + dateId + ", " + listGrouped[groupId] + ");", listGrouped[groupId]);
+                    if (window.isVerbosely) console.log("pushPageData(" + scope + ", " + bound + ", " + group + ", " + dateId + ", " + listGrouped[groupId] + ");", listGrouped[groupId]);
                     this.pushPageData(scope, bound, group, dateId, listGrouped[groupId]);
                 }
             }
@@ -8421,7 +8922,7 @@ class ScheduleDataSet {
 
     issueRequest(delayed = false) {
         if (this.requestIssuer == null) {
-            this.requestIssuer = setTimeout(async () => await this.requestProcessor(), delayed ? 100 : 0);
+            this.requestIssuer = setTimeout(async _ => await this.requestProcessor(), delayed ? 100 : 0);
         }
     }
 
@@ -8556,10 +9057,10 @@ class ScheduleDataSet {
                 if (data != null) {
                     const listGrouped = {};
                     listGrouped[group] = data;
-                    // console.log("pushData(" + caller + ", " + listGrouped + ", " + i + ");", caller, data);
+                    if (window.isVerbosely) console.log("pushData(" + caller + ", " + listGrouped + ", " + i + ");", caller, data);
                     this.pushData(caller, listGrouped, i);
                 } else {
-                    // console.log("requestData(" + group + ", " + i + ", " + caller + ");", caller);
+                    if (window.isVerbosely) console.log("requestData(" + group + ", " + i + ", " + caller + ");", caller);
                     this.requestData(group, i, caller);
                 }
             }
@@ -8578,7 +9079,7 @@ class ScheduleDataSet {
         if (caller != null) try {
             caller.pushDailySchedule(data, dateId);
         } catch (ex) {
-            console.log(ex.name + "\n" + ex.message);
+            if (window.isLogging) console.error(ex);
         }
     }
 
@@ -8702,7 +9203,7 @@ class ScheduleDataSet {
         try {
             caller.pushYearlySchedule(datas, year, groups);
         } catch (ex) {
-            console.log(ex.name + "\n" + ex.message);
+            if (window.isLogging) console.error(ex.name + "\n" + ex.message);
         }
     }
 
@@ -8738,6 +9239,788 @@ class ScheduleDataSet {
 }
 
 const scheduleDataSet = new ScheduleDataSet();
+
+
+
+
+class EstreDedicatedCalanderHandle extends EstreHandle {
+
+    // constants
+
+
+    // statics
+
+
+    // open property
+    $calendarBlock;
+    $scheduleBlock;
+    
+    // enclosed property
+
+    calendar;
+    scheduler;
+
+    // getter and setter
+    get lang() { return this.$bound.attr("lang") ?? EsLocale.currentLocale ?? "en"; }
+
+
+    constructor(element, host) {
+        super(element, host);
+    }
+
+    release() {
+        super.release();
+    }
+
+    init() {
+        super.init();
+
+        if (isNullOrEmpty(this.$bound.attr("lang"))) this.$bound.attr("lang", this.lang);
+
+        this.$calendarBlock = this.$bound.find(c.c + uis.calendarBlock);
+        this.$scheduleBlock = this.$bound.find(c.c + uis.scheduleBlock);
+
+        this.calendar = new EstreMicroCalendar(this.$calendarBlock.find(c.c + uis.microCalendar)[0], this.$calendarBlock[0], this);
+        this.calendar.init();
+        this.$scheduleBlock.find(c.c + uis.minimalScheduler)[0]?.let(it => {
+            this.scheduler = new EstreMinimalScheduler(it, this.$scheduleBlock[0], this.calendar, this);
+            this.scheduler.init();
+        });
+
+        return this;
+    }
+}
+
+class EstreMicroCalendar {
+
+    // constants
+
+
+    // statics
+
+
+    // open property
+    area;
+    $area;
+
+    bound;
+    $bound;
+    data;
+
+    $structure;
+    structure;
+
+    $stretchHandle;
+
+    // enclosed property
+    #dediCal;
+
+    #stretchSwipeHandler;
+
+    #selectedYear;
+    #selectedMonth;
+    #selectedWeek;
+    #selectedDay;
+
+    #setBoundCallback;
+    #showEachDayCallback;
+    #selectionChangedCallback;
+    #selectedDayByUserCallback;
+    #collapsedChangedCallback;
+
+    #isCollapsed;
+
+    // getter and setter
+    get focusedYear() { return this.$structure.attr(eds.focusYear)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it)) }
+    get focusedMonth() { return this.$structure.attr(eds.focusMonth)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it)) }
+    get focusedWeek() { return this.$structure.attr(eds.focusWeek)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it)) }
+    get focusedDay() { return this.$structure.attr(eds.focusDay)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it)) }
+
+    get dateFocused() {
+        const year = this.focusedYear;
+        const month = this.focusedMonth;
+        const date = this.focusedDay;
+
+        if (year == null || month == null || date == null) return null;
+
+        const month0 = month - 1;
+        return new Date(year, month0, date);
+    }
+    get weekDayFocused() { return this.dateFocused?.getDay(); }
+
+    get boundYear() { return this.$structure.attr(eds.boundYear)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it)) }
+    get boundMonth() { return this.$structure.attr(eds.boundMonth)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it)) }
+    get boundWeek() { return this.$structure.attr(eds.boundWeek)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it)) }
+
+
+    get isCollapsed() { return this.$bound.attr(eds.collapsed) == t1; }
+
+
+    constructor(element, area, dediCal) {
+        this.#dediCal = dediCal;
+
+        this.area = area;
+        this.$area = $(area);
+
+        this.bound = element;
+        this.$bound = $(element);
+
+        this.$structure = this.$bound.find(c.c + uis.calendarStructure);
+
+        this.$stretchHandle = this.$bound.find(c.c + uis.stretchHandle + c.c + uis.handle);
+
+    }
+
+    init() {
+        this.setStretchSwipeHandler();
+
+        const today = this.initStructure();
+
+        this.setSelectedDay(today.year, today.month, today.date);
+
+        return this;
+    }
+
+    release(remove) {
+        super.remove(remove);
+
+        this.structure?.release(remove);
+    }
+
+    setStretchSwipeHandler() {
+        this.#isCollapsed = this.isCollapsed;
+
+        if (this.$stretchHandle.length == 0) return;
+
+        this.releaseStretchSwipeHandler();
+
+        const stratchThreshold = 40;
+        this.#stretchSwipeHandler = new EstreSwipeHandler(this.$stretchHandle).setStopPropagation().setPreventDefault().setPreventAll().unuseX().setResponseBound(this.$bound).setThresholdY(8).setOnUp((grabX, grabY, handled, canceled, directed) => {
+            if (handled) {
+                let collapsed;
+                if (this.#isCollapsed) {
+                    collapsed = grabY < stratchThreshold;
+                } else {
+                    collapsed = grabY <= -stratchThreshold;
+                }
+                if (collapsed != this.isCollapsed) {
+                    this.$bound.attr(eds.collapsed, collapsed ? t1 : "");
+                }
+                if (collapsed != this.#isCollapsed) {
+                    this.#isCollapsed = collapsed;
+                    this.#collapsedChangedCallback?.(collapsed, this);
+                }
+            }
+        }).setOnMove((grabX, grabY, handled, dropped, directed) => {
+            if (handled) {
+                let collapsed;
+                if (this.#isCollapsed) {
+                    collapsed = grabY < stratchThreshold;
+                } else {
+                    collapsed = grabY <= -stratchThreshold;
+                }
+                if (collapsed != this.isCollapsed) {
+                    this.$bound.attr(eds.collapsed, collapsed ? t1 : "");
+                }
+            }
+        });
+    }
+
+    releaseStretchSwipeHandler() {
+        if (this.#stretchSwipeHandler != null) {
+            this.#stretchSwipeHandler.release();
+            this.#stretchSwipeHandler = null;
+        }
+    }
+
+    initStructure(type = this.$structure.attr(eds.structureType)) {
+        this.structure = matchCase(type, {
+            "weekfloor": _ => new EstreWeekFloorStructure(this.$structure, this),
+            [def]: _ => {
+                this.$structure.attr(eds.structureType, "weekfloor");
+                return new EstreWeekFloorStructure(this.$structure, this)
+            },
+        });
+
+        return this.structure.init();
+    }
+
+    selectToday() {
+        const today = new Date();
+
+        this.setSelectedDay(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    }
+
+    setSelectedYear(year) {
+        this.#selectedYear = year;
+
+        const month = this.#selectedMonth ?? 1;
+        const month0 = this.#selectedMonth - 1;
+
+        const dateSet = Ecal.getDateSet(new Date(year, month0, this.#selectedDay));
+        const lastDay = Ecal.getLastDay(year, month0);
+        if (dateSet.date > lastDay) dateSet = Ecal.getDateSet(new Date(year, month0, lastDay));
+
+        this.#selectedWeek = dateSet.week;
+
+        this.$structure.attr(eds.focusYear, year);
+        this.$structure.attr(eds.focusMonth, month);
+        this.$structure.attr(eds.focusWeek, dateSet.week);
+        this.$structure.attr(eds.focusDay, dateSet.date);
+
+        this.checkSetDayFocused(dateSet);
+    }
+
+    setSelectedMonth(year, month) {
+        this.#selectedYear = year;
+        this.#selectedMonth = month;
+
+        const month0 = month - 1;
+        const isWeekly = this.boundWeek != null;
+
+        const dateSet = Ecal.getDateSet(new Date(year, month0, this.#selectedDay));
+        const lastDay = Ecal.getLastDay(year, month0);
+        if (dateSet.date > lastDay) dateSet = Ecal.getDateSet(new Date(year, month, lastDay));
+
+        this.#selectedWeek = dateSet.week;
+
+        this.$structure.attr(eds.focusYear, year);
+        this.$structure.attr(eds.focusMonth, month);
+        this.$structure.attr(eds.focusWeek, dateSet.week);
+        this.$structure.attr(eds.focusDay, dateSet.date);
+
+        this.setBound(year, month, isWeekly ? dateSet.week : u);
+
+        this.checkSetDayFocused(dateSet);
+    }
+
+    setSelectedWeek(year, month, week) {
+        this.#selectedYear = year;
+
+        const month0 = month - 1;
+
+        const day = this.weekDayFocused ?? 0;
+        const justday = Ecal.getDateSundayOfWeek(year, month0, week);
+        if (day > 0) justday.setDate(justday.getDate() + day);
+        const dateSet = Ecal.getDateSet(justday);
+
+        this.#selectedMonth = dateSet.month;
+        this.#selectedWeek = dateSet.week;
+        this.#selectedDay = dateSet.date;
+
+        this.$structure.attr(eds.focusYear, dateSet.year);
+        this.$structure.attr(eds.focusMonth, dateSet.month);
+        this.$structure.attr(eds.focusWeek, dateSet.week);
+        this.$structure.attr(eds.focusDay, dateSet.date);
+
+        this.checkSetDayFocused(dateSet);
+    }
+
+    setSelectedDay(year, month, date) {
+        this.#selectedYear = year;
+        this.#selectedMonth = month;
+        this.#selectedDay = date;
+
+        const month0 = month - 1;
+
+        const dateSet = Ecal.getDateSet(new Date(year, month0, date));
+
+        this.#selectedWeek = dateSet.week;
+
+        this.$structure.attr(eds.focusYear, dateSet.year);
+        this.$structure.attr(eds.focusMonth, dateSet.month);
+        this.$structure.attr(eds.focusWeek, dateSet.week);
+        this.$structure.attr(eds.focusDay, dateSet.date);
+
+        this.checkSetDayFocused();
+    }
+    
+    checkSetDayFocused(dateSet = Ecal.getDateSet(this.dateFocused ?? new Date())) {
+        this.$structure.find(uis.day + aiv(eds.selected, t1)).removeAttr(eds.selected);
+
+        const isWeekly = this.boundWeek != null;
+
+        const findDay = () => this.$structure.find(uis.day + aiv(eds.year, dateSet.year) + aiv(eds.month, dateSet.month) + aiv(eds.date, dateSet.date));
+
+        const $day = findDay();
+        if ($day.length > 0) $day.attr(eds.selected, t1);
+        else {
+            if (isWeekly) {
+                const ymw = dateSet.ymw;
+                this.structure.setBound(ymw.year, ymw.month, ymw.week);
+            } else {
+                this.structure.setBound(dateSet.year, dateSet.month);
+            }
+
+            findDay().attr(eds.selected, t1);
+        }
+
+        this.#selectionChangedCallback?.(dateSet, isWeekly, this, this.structure);
+
+        this.#dediCal.scheduler?.setDateSelected(dateSet.year, dateSet.month, dateSet.date);
+    }
+
+    resetBound() {
+        this.structure.resetBound();
+        this.checkSetDayFocused();
+
+        return this;
+    }
+
+    setBound(year, month, week) {
+        if (ts(year) && year.includes("-")) {
+            const [y, m, w] = year.split("-");
+            year = parseInt(y).let(it => isNaN(it) ? null : it);
+            month = parseInt(m).let(it => isNaN(it) ? null : it);
+            week = w != null ? parseInt(w).let(it => isNaN(it) ? null : it) : null;
+        }
+
+        this.structure.setBound(year, month, week);
+    }
+
+    setBoundScale(isWeekly) {
+        if (isWeekly == null) isWeekly = this.boundWeek == null;
+
+        if (isWeekly) {
+            const dateSet = Ecal.getDateSet(this.dateFocused);
+            this.structure.setBound(dateSet.year, dateSet.month, dateSet.week);
+            this.checkSetDayFocused();
+
+            return true;
+        } else {
+            this.structure.setBound(this.boundYear, this.boundMonth);
+            this.checkSetDayFocused();
+
+            return false;
+        }
+    }
+
+    onSetBound(year, month, week) {
+        this.#setBoundCallback?.(year, month, week, this, this.structure);
+    }
+
+    setOnSetBound(callback = (year, month, week, calendar, structure) => {}) {
+        this.#setBoundCallback = callback;
+
+        return this;
+    }
+
+    setOnShowEachDay(callback = ($day, year, month, date, calendar, structure) => {}) {
+        this.#showEachDayCallback = callback;
+
+        return this;
+    }
+
+    onShowEachDay(day) {
+        if (this.#showEachDayCallback == null) return;
+
+        const $day = $(day);
+
+        const year = $day.attr(eds.year)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+        const month = $day.attr(eds.month)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+        const date = $day.attr(eds.date)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+
+        if (year != null && month != null && date != null) {
+            this.#showEachDayCallback($day, year, month, date, this, this.structure);
+        }
+    }
+
+    requestCallShowDayCallbacks() {
+        this.structure.callShowDayCallbacks();
+    }
+
+    setOnSelectionChanged(callback = (dateSet, isWeekly, calendar, structure) => {}) {
+        this.#selectionChangedCallback = callback;
+
+        return this;
+    }
+
+    onDaySelected($day) {
+        const year = $day.attr(eds.year)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+        const month = $day.attr(eds.month)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+        const date = $day.attr(eds.date)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+
+        if (year != null && month != null && date != null) {
+            this.setSelectedDay(year, month, date);
+        }
+    }
+
+    setOnSelectedDayByUser(callback = async ($day, year, month, date, calendar, structure) => {}) {
+        this.#selectedDayByUserCallback = callback;
+
+        return this;
+    }
+
+    async onDaySelectedByUser(day) {
+        const $day = $(day);
+
+        const year = $day.attr(eds.year)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+        const month = $day.attr(eds.month)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+        const date = $day.attr(eds.date)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+
+        if (year != null && month != null && date != null) {
+            const isHandled = await this.#selectedDayByUserCallback?.($day, year, month, date, this, this.structure);
+            if (!isHandled) this.setSelectedDay(year, month, date);
+        }
+    }
+
+    selectPrevDay() {
+        const year = this.focusedYear;
+        const month = this.focusedMonth;
+        const day = this.focusedDay;
+
+        if (year == null || month == null || day == null) return;
+
+        const month0 = month - 1;
+
+        const date = new Date(year, month0, day);
+        date.setDate(date.getDate() - 1);
+
+        this.setSelectedDay(date.getFullYear(), date.getMonth() + 1, date.getDate());
+    }
+
+    selectNextDay() {
+        const year = this.focusedYear;
+        const month = this.focusedMonth;
+        const day = this.focusedDay;
+
+        if (year == null || month == null || day == null) return;
+
+        const month0 = month - 1;
+
+        const date = new Date(year, month0, day);
+        date.setDate(date.getDate() + 1);
+
+        this.setSelectedDay(date.getFullYear(), date.getMonth() + 1, date.getDate());
+    }
+
+    selectPrevWeekDay() {
+        const year = this.focusedYear;
+        const month = this.focusedMonth;
+        const day = this.focusedDay;
+
+        if (year == null || month == null || day == null) return;
+
+        const month0 = month - 1;
+
+        const date = new Date(year, month0, day);
+        date.setDate(date.getDate() - 7);
+
+        this.setSelectedDay(date.getFullYear(), date.getMonth() + 1, date.getDate());
+    }
+
+    selectNextWeekDay() {
+        const year = this.focusedYear;
+        const month = this.focusedMonth;
+        const day = this.focusedDay;
+
+        if (year == null || month == null || day == null) return;
+
+        const month0 = month - 1;
+
+        const date = new Date(year, month0, day);
+        date.setDate(date.getDate() + 7);
+
+        this.setSelectedDay(date.getFullYear(), date.getMonth() + 1, date.getDate());
+    }
+
+    setOnCollapseChanged(callback = (collapsed, calendar) => {}) {
+        this.#collapsedChangedCallback = callback;
+
+        return this;
+    }
+
+    setCollapsed(collapsed) {
+        collapsed = !!collapsed;
+        this.$bound.attr(eds.collapsed, collapsed ? t1 : "");
+        this.#isCollapsed = collapsed;
+        this.#collapsedChangedCallback?.(collapsed, this);
+
+        return this;
+    }
+}
+
+class EstreWeekFloorStructure {
+    // constants
+
+
+    // statics
+
+
+    // open property
+    calendar;
+
+    $structure;
+
+    $weeks;
+
+    // enclosed property
+
+
+    // getter and setter
+
+    constructor($structure, calendar) {
+        this.$structure = $structure;
+        this.calendar = calendar;
+
+        this.$weeks = this.$structure.find(c.c + uis.weeks);
+    }
+
+    release(remove) {
+        this.calendar = null;
+
+        if (remove) this.$structure.remove();
+        else if (remove === false) this.$structure.empty();
+
+
+        this.$structure = null;
+    }
+
+    init() {
+        return this.resetBound();
+    }
+
+    resetBound() {
+        const now = new Date();
+        const year = this.$structure.attr(eds.boundYear)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it)) ?? now.getFullYear();
+        const month = this.$structure.attr(eds.boundMonth)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it)) ?? (now.getMonth() + 1);
+        const week = this.$structure.attr(eds.boundWeek)?.let(it => parseInt(it).let(it => isNaN(it) ? null : it));
+
+        return this.setBound(year, month, week);
+    }
+
+    setBound(year, month, week) {
+        this.calendar.onSetBound(year, month, week);
+
+        this.$weeks.empty();
+
+        this.$structure.attr(eds.boundYear, year);
+        this.$structure.attr(eds.boundMonth, month);
+        this.$structure.attr(eds.boundWeek, week ?? "");
+
+        const month0 = month - 1;
+
+        if (week == null) {
+            const firstOfNextMonth = Ecal.getNextMonth(year, month);
+            const firstTimeOfNextMonth = firstOfNextMonth.getTime();
+            const bdw = Ecal.getBeginSundayAndWeek(year, month0);
+            const weekOrigin = bdw.week;
+            var week = weekOrigin;
+            var bds = Ecal.getDateSet(bdw.date);
+
+            do {
+                const ymw = bds.ymw;
+                const bdy = ymw.year;
+                const bdm = ymw.month0;
+                const bdw = ymw.week;
+
+                const weekBlock = this.buildWeek(bdy, bdm, bdw, year, month0);
+                this.$weeks.append(weekBlock);
+
+                week++;
+                bds = Ecal.getDateSetSundayOfWeek(year, month0, week);
+            } while (bds.time < firstTimeOfNextMonth);
+        } else {
+            const weekBlock = this.buildWeek(year, month0, week);
+            this.$weeks.append(weekBlock);
+        }
+
+        this.callShowDayCallbacks();
+
+        const inst = this;
+        this.$structure.find(uis.day).click(function (e) {
+            e.preventDefault();
+
+            inst.calendar.onDaySelectedByUser(this);
+
+            return false;
+        });
+
+        return this.releaseToday();
+    }
+
+    buildWeek(year, month0, week, boundYear = year, boundMonth0 = month0) {
+        var dateSet = Ecal.getDateSetSundayOfWeek(year, month0, week);
+        const lastDay = Ecal.getDateSet(new Date(dateSet.year, dateSet.month0, dateSet.date + 6));
+
+        const weekBlock = doc.ce(div, "week");
+        weekBlock.setAttribute(eds.year, dateSet.year);
+        weekBlock.setAttribute(eds.month, dateSet.month);
+        weekBlock.setAttribute(eds.week, dateSet.week);
+        const daysHolder = doc.ce(div, "days_holder");
+        const days = doc.ce(div, "days");
+
+        if (dateSet.year != lastDay.year) weekBlock.setAttribute(eds.boundYear, dateSet.year != boundYear ? dateSet.year : lastDay.year);
+        if (dateSet.month != lastDay.month) weekBlock.setAttribute(eds.adjoinMonth, dateSet.month0 != boundMonth0 ? dateSet.month : lastDay.month);
+        if (dateSet.week != lastDay.week) weekBlock.setAttribute(eds.adjoinWeek, dateSet.week != week ? dateSet.week : lastDay.week);
+
+        do {
+            days.append(this.buildDay(dateSet, year, month0, week));
+
+            dateSet = Ecal.getDateSet(new Date(dateSet.year, dateSet.month0, dateSet.date + 1));
+        } while (dateSet.day > 0);
+        
+        daysHolder.append(days);
+        weekBlock.append(daysHolder);
+
+        return weekBlock;
+    }
+
+    buildDay(dateSet, boundYear, boundMonth0, boundWeek) {
+        const dayBlock = doc.ce(div, "day");
+        dayBlock.setAttribute(eds.year, dateSet.year);
+        dayBlock.setAttribute(eds.month, dateSet.month);
+        dayBlock.setAttribute(eds.week, dateSet.week);
+        dayBlock.setAttribute(eds.date, dateSet.date);
+        dayBlock.setAttribute(eds.day, dateSet.day);
+
+        if (dateSet.year != boundYear) dayBlock.setAttribute(eds.adjoinYear, dateSet.year);
+        if (dateSet.month0 != boundMonth0) dayBlock.setAttribute(eds.adjoinMonth, dateSet.month);
+        if (dateSet.week != boundWeek) dayBlock.setAttribute(eds.adjoinWeek, dateSet.week);
+
+        const label = doc.ce(div, "label");
+        label.append(doc.ce(lbl, n, dateSet.date));
+        dayBlock.append(label);
+        const subject = doc.ce(div, "subject");
+        subject.append(doc.ce(sp));
+        dayBlock.append(subject);
+        const scheduled = doc.ce(div, "scheduled");
+        const list = doc.ce(ul);
+        scheduled.append(list);
+        dayBlock.append(scheduled);
+
+        return dayBlock;
+    }
+
+    callShowDayCallbacks() {
+        const days = this.$weeks.find(uis.day);
+        for (const day of days) this.calendar.onShowEachDay(day);
+    }
+
+    releaseToday(today = Ecal.getDateSet()) {
+        this.$structure.attr(eds.todayYear, today.year);
+        this.$structure.attr(eds.todayMonth, today.month);
+        this.$structure.attr(eds.todayWeek, today.week);
+        this.$structure.attr(eds.todayDay, today.date);
+
+        this.$weeks.find(uis.day + aiv(eds.today, t1)).removeAttr(eds.today);
+
+        const $day = this.$weeks.find(uis.day + aiv(eds.year, today.year) + aiv(eds.month, today.month) + aiv(eds.date, today.date));
+        $day.attr(eds.today, t1);
+
+        return today;
+    }
+}
+
+
+class EstreMinimalScheduler {
+    // constants
+
+
+    // statics
+    
+
+    // open property
+    dediCal;
+    calendar;
+
+    area
+    $area;
+
+    bound;
+    $bound;
+
+    $scheduleList;
+    scheduleList;
+
+    // enclosed property
+    #onShowSelectedDayCallback;
+
+
+    // getter and setter
+    get $scheduleItems() { return this.$scheduleList.find(c.c + uis.scheduleItem); }
+
+    constructor(scheduler, area, calendar, dediCal) {
+        this.bound = scheduler;
+        this.$bound = $(scheduler);
+        this.area = area;
+        this.$area = $(area);
+
+        this.dediCal = dediCal;
+        this.calendar = calendar;
+
+        this.$scheduleList = this.$bound.find(c.c + uis.minimalScheduleList);
+        this.scheduleList = this.$scheduleList[0];
+    }
+
+    release(remove) {
+
+        if (remove) this.$bound.remove();
+        else if (remove === false) this.$scheduleList.empty();
+
+        this.area = null;
+        this.$area = null;
+
+        this.bound = null;
+        this.$bound = null;
+
+        this.calendar = null;
+        this.dediCal = null;
+    }
+
+    init() {
+        const $placeholder = this.$scheduleList.find(c.c + uis.placeholder);
+        if (this.$scheduleList.attr(eds.frozenPlaceholder) == null) {
+            $placeholder.find(".message").html("|message|");
+            const solidPlaceholder = $placeholder.length > 0 ? $placeholder[0].stringified() : (new Doctre("div.placeholder", [["span.message", "|message|"]])).toString();
+            this.$scheduleList.attr(eds.frozenPlaceholder, solidPlaceholder);
+        }
+
+        const message = this.$scheduleList.attr(eds.messageOnNoSelection) ?? "Select a day to view schedule";
+        this.scheduleList.melt({ message }, "frozenPlaceholder");
+
+        return this;
+    }
+
+    setOnShowSelectedDay(callback = (year, month, date, scheduler, calendar) => {}) {
+        this.#onShowSelectedDayCallback = callback;
+
+        return this;
+    }
+
+    setDateSelected(year, month, date) {
+        const message = this.$scheduleList.attr(eds.messageOnLoading) ?? "Loading schedule...";
+        this.scheduleList.melt({ message }, "frozenPlaceholder");
+        
+
+        postAsyncQueue(async _ => {
+            const documentFragment = await this.#onShowSelectedDayCallback?.(year, month, date, this, this.calendar);
+            this.$scheduleList.empty();
+            if (documentFragment != null) this.$scheduleList.append(documentFragment);
+
+            if (this.$scheduleItems.length < 1) {
+                const message = this.$scheduleList.attr(eds.messageOnNoData) ?? "No schedule available for this day";
+                this.scheduleList.melt({ message }, "frozenPlaceholder");
+            }
+        });
+    }
+
+    buildScheduleItem(subject, time, origin, associated) {
+        const item = doc.ce(li, uis.scheduleItem);
+        const block = doc.ce(div, uis.schedule);
+        const subjectLine = doc.ce(div, "subject_line");
+        subjectLine.append(doc.ce(sp, "subject", subject));
+        subjectLine.append(doc.ce(sp, "origin", origin ?? ""));
+        block.append(subjectLine);
+        const timeLine = doc.ce(div, "time_line");
+        timeLine.append(doc.ce(sp, "time", time ?? ""));
+        timeLine.append(doc.ce(sp, "associated", associated ?? ""));
+        block.append(timeLine);
+        item.append(block);
+        return item;
+    }
+}
+
 
 
 /**
@@ -9165,17 +10448,17 @@ class EstreToggleTabBlockHandle extends EstreToggleBlockHandle {
         const applyToSSB = this.$ssb.length > 0;
         const $feedbackTarget = applyToSSB ? this.$subjects : this.$contents;
         this.swipeHandler = new EstreSwipeHandler(this.$tcb).unuseY().setResponseBound(applyToSSB ? this.$ssb : this.$tcb).setOnUp(function(grabX, grabY, handled, canceled, directed) {
-            // console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             if (handled) {
                 const isNext = grabX < 0;
-                setTimeout(() => {
+                setTimeout(_ => {
                     if (isNext) inst.selectNextTab();
                     else inst.selectPrevTab();
                 }, 0);
-                return { delay: cvt.t2ms($feedbackTarget.filter(naiv(eds.slide, t1)).css(a.trdr)), callback: () => setTimeout(() => $feedbackTarget.filter(ax(eds.slide)).attr(eds.slide, null), 0) };
+                return { delay: cvt.t2ms($feedbackTarget.filter(naiv(eds.slide, t1)).css(a.trdr)), callback: () => setTimeout(_ => $feedbackTarget.filter(ax(eds.slide)).attr(eds.slide, null), 0) };
             } else $feedbackTarget.filter(ax(eds.slide)).attr(eds.slide, null);
         }).setOnMove(function(grabX, grabY, handled, dropped, directed) {
-            // console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             const isNext = grabX < 0;
             if (grabX !== 0) {
                 const targetId = isNext ? inst.getNextTabId() : inst.getPrevTabId();
@@ -9214,7 +10497,7 @@ class EstreToggleTabBlockHandle extends EstreToggleBlockHandle {
         const selected = this.selected;
         
         const target = selected - 1;
-        //console.log("selectPrevTab - current: " + selected + ", target: " + target);
+        if (window.isVerbosely) console.log("selectPrevTab - current: " + selected + ", target: " + target);
         return target > -1 ? target : 0;
     }
 
@@ -9228,7 +10511,7 @@ class EstreToggleTabBlockHandle extends EstreToggleBlockHandle {
         const selected = this.selected;
         
         const target = selected + 1;
-        //console.log("selectNextTab - current: " + selected + ", target: " + target);
+        if (window.isVerbosely) console.log("selectNextTab - current: " + selected + ", target: " + target);
         return target < tabs.length ? target : tabs.length - 1;
     }
 
@@ -9372,17 +10655,17 @@ class EstreTabBlockHandle extends EstreHandle {
         const applyToSSB = this.$ssb.length > 0;
         const $feedbackTarget = applyToSSB ? this.$subjects : this.$contents;
         this.swipeHandler = new EstreSwipeHandler(this.$tcb).unuseY().setResponseBound(applyToSSB ? this.$ssb : this.$tcb).setOnUp(function(grabX, grabY, handled, canceled, directed) {
-            // console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             if (handled) {
                 const isNext = grabX < 0;
-                setTimeout(() => {
+                setTimeout(_ => {
                     if (isNext) inst.selectNextTab();
                     else inst.selectPrevTab();
                 }, 0);
-                return { delay: cvt.t2ms($feedbackTarget.filter(naiv(eds.slide, t1)).css(a.trdr)), callback: () => setTimeout(() => $feedbackTarget.filter(ax(eds.slide)).attr(eds.slide, null), 0) };
+                return { delay: cvt.t2ms($feedbackTarget.filter(naiv(eds.slide, t1)).css(a.trdr)), callback: () => setTimeout(_ => $feedbackTarget.filter(ax(eds.slide)).attr(eds.slide, null), 0) };
             } else $feedbackTarget.filter(ax(eds.slide)).attr(eds.slide, null);
         }).setOnMove(function(grabX, grabY, handled, dropped, directed) {
-            // console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             const isNext = grabX < 0;
             if (grabX !== 0) {
                 const targetId = isNext ? inst.getNextTabId() : inst.getPrevTabId();
@@ -9420,7 +10703,7 @@ class EstreTabBlockHandle extends EstreHandle {
         const selected = this.selected;
         
         const target = selected - 1;
-        //console.log("selectPrevTab - current: " + selected + ", target: " + target);
+        if (window.isVerbosely) console.log("selectPrevTab - current: " + selected + ", target: " + target);
         return target > -1 ? target : 0;
     }
 
@@ -9434,7 +10717,7 @@ class EstreTabBlockHandle extends EstreHandle {
         const selected = this.selected;
         
         const target = selected + 1;
-        //console.log("selectNextTab - current: " + selected + ", target: " + target);
+        if (window.isVerbosely) console.log("selectNextTab - current: " + selected + ", target: " + target);
         return target < tabs.length ? target : tabs.length - 1;
     }
 
@@ -9573,17 +10856,17 @@ class EstreScopedTabBlock extends EstreTabBlockHandle {
         const inst = this;
         const $feedbackTarget = this.$subjects;
         this.swipeHandler = new EstreSwipeHandler(this.$ssb).unuseY().setResponseBound(this.$ssb).setOnUp(function(grabX, grabY, handled, canceled, directed) {
-            // console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             if (handled) {
                 const isNext = grabX < 0;
-                setTimeout(() => {
+                setTimeout(_ => {
                     if (isNext) inst.selectNextTab();
                     else inst.selectPrevTab();
                 }, 0);
-                return { delay: cvt.t2ms($feedbackTarget.filter(naiv(eds.slide, t1)).css(a.trdr)), callback: () => setTimeout(() => $feedbackTarget.filter(ax(eds.slide)).attr(eds.slide, null), 0) };
+                return { delay: cvt.t2ms($feedbackTarget.filter(naiv(eds.slide, t1)).css(a.trdr)), callback: () => setTimeout(_ => $feedbackTarget.filter(ax(eds.slide)).attr(eds.slide, null), 0) };
             } else $feedbackTarget.filter(ax(eds.slide)).attr(eds.slide, null);
         }).setOnMove(function(grabX, grabY, handled, dropped, directed) {
-            // console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             const isNext = grabX < 0;
             if (grabX !== 0) {
                 const targetId = isNext ? inst.getNextTabId() : inst.getPrevTabId();
@@ -9595,18 +10878,18 @@ class EstreScopedTabBlock extends EstreTabBlockHandle {
         });
 
         this.boundSwipeHandler = new EstreSwipeHandler(this.$tcb).unuseY().setResponseBound(this.$tcb).setOnUp(function(grabX, grabY, handled, canceled, directed) {
-            // console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / canceled: " + canceled + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             const $boundHosts = inst.getCurrentContentScope().find(c.c + uis.boundHost);
             if (handled) {
                 const isNext = grabX < 0;
-                setTimeout(() => {
+                setTimeout(_ => {
                     if (isNext) inst.showPageNext();
                     else inst.showPagePrev();
                 }, 0);
-                return { delay: cvt.t2ms($boundHosts.filter(naiv(eds.slide, t1)).css(a.trdr)), callback: () => setTimeout(() => $boundHosts.filter(ax(eds.slide)).attr(eds.slide, null), 0) };
+                return { delay: cvt.t2ms($boundHosts.filter(naiv(eds.slide, t1)).css(a.trdr)), callback: () => setTimeout(_ => $boundHosts.filter(ax(eds.slide)).attr(eds.slide, null), 0) };
             } else $boundHosts.filter(ax(eds.slide)).attr(eds.slide, null);
         }).setOnMove(function(grabX, grabY, handled, dropped, directed) {
-            // console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
+            if (window.isVerbosely) console.log("handled: " + handled + " / dropped: " + dropped + " / directed: " + directed + " / grab: " + grabX + ", " + grabY + " / lastX: " + this.lastX + ", " + this.lastY + " / startX: " + this.startX + ", " + this.startY);
             const $boundHosts = inst.getCurrentContentScope().find(c.c + uis.boundHost);
             const isNext = grabX < 0;
             if (grabX !== 0) {
@@ -9677,6 +10960,81 @@ class EstreScopedTabBlock extends EstreTabBlockHandle {
         const $content = this.$contents.filter(obk + eds.tabId + equ + v4(id) + cbk);
         const scope = $content.attr(eds.scope);
         this.handler.notifyScopeChanged(scope);
+    }
+}
+
+
+
+/**
+ * Estre dynamic section block handle
+ */
+class EstreDynamicSectionBlockHandle extends EstreHandle {
+
+    // constants
+
+    // statics
+
+    // open property
+    $dynamicSectionHost;
+    $hostItems;
+
+    $blockItems;
+    
+    // enclosed property
+
+    // getter and setter
+
+
+    constructor(dynamicSectionBlock, host) {
+        super(dynamicSectionBlock, host);
+    }
+
+    release() {
+        super.release();
+    }
+
+    init() {
+        super.init();
+
+        this.$dynamicSectionHost = this.host.$host.find(uis.dynamicSectionHost);
+        this.$hostItems = this.$dynamicSectionHost.find(uis.hostItem);
+
+        this.$blockItems = this.$bound.find(uis.blockItem);
+
+        this.setEvent();
+
+        return this;
+    }
+
+    setEvent() {
+        const inst = this;
+
+        this.$hostItems.click(function (e) {
+            e.preventDefault();
+
+            const id = this.dataset.id;
+            inst.$blockItems.filter(aiv(eds.id, id))[0].scrollIntoView({ behavior: "smooth", block: "start" });
+
+            return false;
+        });
+
+        const rootMargin = this.$bound.attr(eds.intersectionRootMargin)?.ifEmpty(it => n) ?? "0px";
+        const threshold = this.$bound.attr(eds.intersectionThreshold)?.ifEmpty(it => n, it => parseFloat(it)) ?? 0.45;
+
+        const biio = new IntersectionObserver(entries => {
+            for (const entry of entries) {
+                const id = entry.target.dataset.id;
+                const isShowing = entry.isIntersecting ? t1 : "";
+                this.$hostItems.filter(aiv(eds.id, id)).attr(eds.showing, isShowing);
+                this.host.$host.attr(eds.showing + hp + id, isShowing);
+            }
+        }, {
+            root: this.bound,
+            rootMargin,
+            threshold
+        });
+
+        for (const item of this.$blockItems) biio.observe(item);
     }
 }
 
@@ -9791,7 +11149,7 @@ class EstreNumKeypadHandle extends EstreHandle {
                     try {
                         this.value += inst.autoDivider;
                     } catch (ex) {
-                        console.log(ex.name + "\n" + ex.message);
+                        if (window.isLogging) console.error(ex.name + "\n" + ex.message);
                     }
                 }
             }
@@ -10002,7 +11360,7 @@ class EstreToasterSlotHandle extends EstreHandle {
                     const parsed = JSON.parse(options);
                     toastOption(this.dataset.toastTitle ?? "", this.dataset.toastMessage ?? "", parsed, (index, value) => this.onselected?.(index, value));
                 } catch (e) {
-                    console.log(e);
+                    if (window.isLogging) console.error(e);
                 }
                 break;
 
@@ -10012,6 +11370,189 @@ class EstreToasterSlotHandle extends EstreHandle {
             return false;
         });
 
+    }
+}
+
+
+
+/**
+ * Estre custom selector bar handle
+ */
+class EstreCustomSelectorBarHandle extends EstreHandle {
+
+    // constants
+
+
+    // statics
+
+
+    // open property
+    $selectorBtn;
+
+    $prevBtn;
+    $nextBtn;
+
+    $selectionsList;
+    
+    // enclosed property
+    #selections = [];
+    #currentIndex;
+
+    #onBuildSelector = $selectorBtn => doc.ce(sp);
+    #onBuildSelectionsItem = (index, id, item, button) => doc.ce(sp, n, id);
+
+    #onSelected = (index, id, $selectorBtn, isUpdateOnly) => $selectorBtn.find(sp).html(id);
+
+
+    // getter and setter
+    get prev() { return this.#currentIndex - 1; }
+    get current() { return this.#currentIndex; }
+    get next() { return this.#currentIndex + 1; }
+    
+    get prevId() { return this.#currentIndex > 0 ? this.#selections[this.prev] : n; }
+    get currentId() { return this.#selections[this.current]; }
+    get nextId() { return this.#currentIndex < this.#selections.length - 1 ? this.#selections[this.next] : n; }
+
+    get isUsePopupSelector() { return this.$bound.attr(eds.usePopupSelector) == t1; }
+
+
+    constructor(checkboxAlly, host) {
+        super(checkboxAlly, host);
+    }
+
+    release(remove) {
+        super.release(remove);
+    }
+
+    init() {
+        super.init();
+
+        this.$selectorBtn = this.$bound.find(c.c + cls + "bar_side" + c.c + btn + cls + "selector");
+
+        this.$prevBtn = this.$bound.find(c.c + cls + "bar_side" + c.c + btn + cls + "prev");
+        this.$nextBtn = this.$bound.find(c.c + cls + "bar_side" + c.c + btn + cls + "next");
+
+        this.$selectionsList = this.$bound.find(c.c + cls + "float_selections" + c.c + ul + cls + "selections");
+
+        this.setEvent();
+
+        return this;
+    }
+
+    setEvent() {
+        const inst = this;
+
+        this.$selectorBtn.click(function (e) {
+            e.preventDefault();
+
+            inst.toggleSelector();
+
+            return false;
+        });
+
+        this.$prevBtn.click(function (e) {
+            e.preventDefault();
+
+            inst.selectedIndex(inst.prev);
+
+            return false;
+        });
+        this.$nextBtn.click(function (e) {
+            e.preventDefault();
+
+            inst.selectedIndex(inst.next);
+
+            return false;
+        });
+    }
+
+    setOnBuildSelector(callback = $selectorBtn => doc.ce(sp)) {
+        this.#onBuildSelector = callback;
+
+        return this;
+    }
+
+    setOnBuildSelectionsItem(callback = (index, id, isCurrent, item, button) => doc.ce(sp, n, id)) {
+        this.#onBuildSelectionsItem = callback;
+
+        return this;
+    }
+
+    setOnSelected(callback = (index, id, $selectorBtn, isUpdateOnly) => $selectorBtn.find(sp).html(id)) {
+        this.#onSelected = callback;
+
+        return this;
+    }
+
+    initSelections(selections, initIndex = 0, isUpdateOlny = false) {
+        this.#selections = selections;
+
+        this.#onBuildSelector?.let(it => {
+            this.$selectorBtn.empty();
+            this.$selectorBtn.append(it(this.$selectorBtn));
+        });
+
+        this.$selectionsList.empty();
+        
+        for (const [index, id] of selections.entire) this.$selectionsList.append(this.buildSelectionsItem(index, id, index == initIndex));
+
+        this.setEventSelections();
+
+        this.selectedIndex(initIndex, isUpdateOlny);
+    }
+
+    buildSelectionsItem(index, id, isCurrent = false) {
+        const item = doc.ce(li);
+        item.dataset.index = index;
+        item.dataset.id = id;
+        const button = doc.ce(btn, "tp_tiled_btn");
+        button.dataset.index = index;
+        button.dataset.id = id;
+        button.append(this.#onBuildSelectionsItem(index, id, isCurrent, item, button));
+        item.append(button);
+        return item;
+    }
+
+    setEventSelections() {
+        const inst = this;
+
+        this.$selectionsList.find(li + c.c + btn).click(function (e) {
+            e.preventDefault();
+
+            inst.selectedIndex(this.dataset.index);
+
+            return false;
+        });
+    }
+
+    toggleSelector() {
+        if (this.isUsePopupSelector) {
+            // to do implement
+        } else this.$bound.attr(eds.dropdownOpen, this.$bound.attr(eds.dropdownOpen) == t1 ? "" : t1);
+    }
+
+    openSelector() {
+        this.$bound.attr(eds.dropdownOpen, t1);
+    }
+
+    closeSelector() {
+        this.$bound.attr(eds.dropdownOpen, "");
+    }
+
+    selected(id, isUpdateOnly = false) {
+        const index = this.#selections.indexOf(id);
+        if (index < 0) return;
+        this.selectedIndex(index, isUpdateOnly);
+    }
+
+    selectedIndex(index, isUpdateOnly = false) {
+        this.closeSelector();
+        const handled = this.#onSelected(index, this.#selections[index], this.$selectorBtn, isUpdateOnly);
+        if (!handled) {
+            this.#currentIndex = index;
+            this.$selectionsList.find(c.c + li + aiv(eds.selected, t1)).removeAttr(eds.selected);
+            this.$selectionsList.find(c.c + li + aiv(eds.index, index)).attr(eds.selected, t1);
+        }
     }
 }
 
@@ -10029,17 +11570,15 @@ class EstreMonthSelectorBarHandle extends EstreHandle {
 
 
     // open property
-    get prev() { return Ecal.getPrevMonth(this.current); }
-    get current() { return this.currentMonth.let(it => {
-        const [year, month] = it.split("-");
-        return new Date(parseInt(year), parseInt(month) - 1);
-    }); }
-    get next() { return Ecal.getNextMonth(this.current); }
+    $selectorInput;
 
-    get prevMonth() { return Ecal.getDateSet(this.prev).let(it => it.year + "-" + v2d(it.month)); }
-    get currentMonth() { return this.$bound.attr(eds.current); }
-    set currentMonth(value) { this.$bound.attr(eds.current, value); }
-    get nextMonth() { return Ecal.getDateSet(this.next).let(it => it.year + "-" + v2d(it.month)); }
+    $selectorBtn;
+    $selectorCurrent;
+
+    $prevBtn;
+    $nextBtn;
+
+    $monthesList;
 
     monthesItemLimit = 12;
     forMonthesItemShow = (month) => month.replace("-", ".");
@@ -10054,13 +11593,20 @@ class EstreMonthSelectorBarHandle extends EstreHandle {
 
 
     // getter and setter
-    $selectorBtn;
-    $selectorCurrent;
+    get prev() { return Ecal.getPrevMonth(this.current); }
+    get current() { return this.currentMonth.let(it => {
+        const [year, month] = it.split("-");
+        return new Date(parseInt(year), parseInt(month) - 1);
+    }); }
+    get next() { return Ecal.getNextMonth(this.current); }
 
-    $prevBtn;
-    $nextBtn;
+    get prevMonth() { return Ecal.getDateSet(this.prev).let(it => it.year + "-" + it.month2d); }
+    get currentMonth() { return this.$bound.attr(eds.current); }
+    set currentMonth(value) { this.$bound.attr(eds.current, value); }
+    get nextMonth() { return Ecal.getDateSet(this.next).let(it => it.year + "-" + it.month2d); }
 
-    $monthesList;
+    get isShowFuture() { return this.$bound.attr(eds.showFuture) == t1; }
+    get isUsePopupSelector() { return this.$bound.attr(eds.usePopupSelector) == t1; }
 
 
     constructor(checkboxAlly, host) {
@@ -10074,23 +11620,31 @@ class EstreMonthSelectorBarHandle extends EstreHandle {
     init() {
         super.init();
 
-        this.$selectorBtn = this.$bound.find(btn + cls + "selector");
+        this.$selectorInput = this.$bound.find(inp + aiv("type", "month"));
+
+        this.$selectorBtn = this.$bound.find(c.c + cls + "bar_side" + c.c + btn + cls + "selector");
         this.$selectorCurrent = this.$selectorBtn.find(sp + cls + "current");
 
-        this.$prevBtn = this.$bound.find(btn + cls + "prev");
-        this.$nextBtn = this.$bound.find(btn + cls + "next");
+        this.$prevBtn = this.$bound.find(c.c + cls + "bar_side" + c.c + btn + cls + "prev");
+        this.$nextBtn = this.$bound.find(c.c + cls + "bar_side" + c.c + btn + cls + "next");
 
-        this.$monthesList = this.$bound.find(ul + cls + "monthes");
+        this.$monthesList = this.$bound.find(c.c + cls + "float_selections" + c.c + ul + cls + "monthes");
 
         this.setEvent();
 
-        if (this.$bound.attr(eds.autoInit) == t1) this.initMonthes();
+        if (this.$bound.attr(eds.autoInit) == t1) this.monthSelected();
 
         return this;
     }
 
     setEvent() {
         const inst = this;
+
+        this.$selectorInput.change(function (e) {
+            const value = this.value;
+            if (value == "") this.value = inst.currentMonth;
+            else inst.monthSelected(value);
+        });
 
         this.$selectorBtn.click(function (e) {
             e.preventDefault();
@@ -10118,7 +11672,7 @@ class EstreMonthSelectorBarHandle extends EstreHandle {
 
     initMonthes(initMonth) {
         if (initMonth != null) this.currentMonth = initMonth;
-        else if (isNullOrEmpty(this.currentMonth)) this.currentMonth = Ecal.getDateSet().let(it => it.year + "-" + v2d(it.month));
+        else if (isNullOrEmpty(this.currentMonth)) this.currentMonth = Ecal.getDateSet().let(it => it.year + "-" + it.month2d);
 
         this.$monthesList.empty();
         
@@ -10131,8 +11685,11 @@ class EstreMonthSelectorBarHandle extends EstreHandle {
         const todayOffset = Ecal.getMonthOffset(today);
         // const todayMonth = Ecal.getDateSet(today).let(it => it.year + "-" + v2d(it.month));
 
-        const prevLimit = Math.min(Math.max(todayOffset - currentOffset, 0), parseInt((this.monthesItemLimit - 1) / 2));
-        const nextLimit = this.monthesItemLimit - 1 - prevLimit;
+        const othersCount = this.monthesItemLimit - 1;
+        const halfCount = parseInt(othersCount / 2);
+
+        const prevLimit = this.isShowFuture ? halfCount : Math.min(Math.max(todayOffset - currentOffset, 0), halfCount);
+        const nextLimit = othersCount - prevLimit;
 
         let count = 0;
         this.$monthesList.append(this.buildMonthesItem(month, true));
@@ -10166,7 +11723,10 @@ class EstreMonthSelectorBarHandle extends EstreHandle {
     }
 
     toggleSelector() {
-        this.$bound.attr(eds.dropdownOpen, this.$bound.attr(eds.dropdownOpen) == t1 ? "" : t1);
+        if (this.isUsePopupSelector && (isAndroid || isAppleMobile)) {
+            if (isAppleMobile) this.$selectorInput.focus();
+            if (isAndroid) this.$selectorInput.click();
+        } else this.$bound.attr(eds.dropdownOpen, this.$bound.attr(eds.dropdownOpen) == t1 ? "" : t1);
     }
 
     openSelector() {
@@ -10177,16 +11737,17 @@ class EstreMonthSelectorBarHandle extends EstreHandle {
         this.$bound.attr(eds.dropdownOpen, "");
     }
 
-    monthSelected(month) {
+    monthSelected(month, preventCallback = false) {
         if (month != null) this.currentMonth = month;
         else {
-            if (isNullOrEmpty(this.currentMonth)) this.currentMonth = Ecal.getDateSet().let(it => it.year + "-" + v2d(it.month));
+            if (isNullOrEmpty(this.currentMonth)) this.currentMonth = Ecal.getDateSet().let(it => it.year + hp +it.month2d);
             month = this.currentMonth;
         }
 
         this.closeSelector();
+        this.$selectorInput.val(month);
         this.$selectorCurrent.html(this.forMonthesItemShow?.(month) ?? month);
-        this.onSelectedMonth?.(month);
+        if (!preventCallback) this.onSelectedMonth?.(month);
         this.initMonthes();
     }
 }
@@ -10210,7 +11771,9 @@ class EstreDateShowerHandle extends EstreHandle {
 
 
     // getter and setter
+    get date() { return new Date(this.#date); }
 
+    get from() { return this.$bound.attr(eds.dateFrom); }
 
 
     constructor(dateShower, host) {
@@ -10223,14 +11786,6 @@ class EstreDateShowerHandle extends EstreHandle {
 
     init() {
         super.init();
-
-        const from = this.$bound.attr(eds.dateFrom);
-
-        switch (from) {
-            case "today":
-                this.#date = new Date();
-                break;
-        }
 
         this.releaseDate();
 
@@ -10248,71 +11803,139 @@ class EstreDateShowerHandle extends EstreHandle {
     }
 
     releaseDate() {
-        if (this.#date != null) {
+        const from = this.from;
+        switch (from) {
+            case undefined:
+            case null:
+            case "":
+            case "today":
+                this.#date = new Date();
+                break;
+
+            default:
+                this.#date = new Date(from);
+                break;
+        }
+
+       if (this.#date != null) {
             const ds = Ecal.getDateSet(this.#date);
             const $bound = this.$bound;
 
-            const m2d = v2d(ds.month);
-            const d2d = v2d(ds.date);
-            
             $bound.attr(eds.dateY, ds.year);
-            $bound.attr(eds.dateM, m2d);
-            $bound.attr(eds.dateD, d2d);
+            $bound.attr(eds.dateM, ds.month2d);
+            $bound.attr(eds.dateD, ds.date2d);
             $bound.attr(eds.dateId, Ecal.getDateOffset(this.#date, this.lang));
 
             $bound.find(uis.fullYear).each((i, el) => {
                 var text = "";
-                if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("yearSuffix");
+                if ($(el).attr(eds.withPrefix) == t1) text += EsLocale.get("yearPrefix");
                 text += ds.year;
                 if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("yearSuffix");
                 el.innerText = text;
             });
             $bound.find(uis.year2d).each((i, el) => {
                 var text = "";
-                if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("yearSuffix");
-                text += ds.year % 100;
+                if ($(el).attr(eds.withPrefix) == t1) text += EsLocale.get("yearPrefix");
+                text += ds.year2d;
                 if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("yearSuffix");
                 el.innerText = text;
             });
 
             $bound.find(uis.month).each((i, el) => {
                 var text = "";
-                if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("monthSuffix");
+                if ($(el).attr(eds.withPrefix) == t1) text += EsLocale.get("monthPrefix");
                 text += ds.monthText;
                 if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("monthSuffix");
                 el.innerText = text;
             });
-            $bound.find(uis.paddedMonth).each((i, el) => {
+            $bound.find(uis.month2d + cor + uis.paddedMonth).each((i, el) => {
                 var text = "";
-                if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("monthSuffix");
-                text += m2d;
+                if ($(el).attr(eds.withPrefix) == t1) text += EsLocale.get("monthPrefix");
+                text += ds.month2d;
                 if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("monthSuffix");
                 el.innerText = text;
             });
 
             $bound.find(uis.date).each((i, el) => {
                 var text = "";
-                if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("daySuffix");
+                if ($(el).attr(eds.withPrefix) == t1) text += EsLocale.get("dayPrefix");
                 text += ds.date;
                 if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("daySuffix");
                 el.innerText = text;
             });
-            $bound.find(uis.paddedDate).each((i, el) => {
+            $bound.find(uis.date2d + cor + uis.paddedDate).each((i, el) => {
                 var text = "";
-                if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("daySuffix");
-                text += d2d;
+                if ($(el).attr(eds.withPrefix) == t1) text += EsLocale.get("dayPrefix");
+                text += ds.date2d;
                 if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("daySuffix");
                 el.innerText = text;
             });
 
             $bound.find(uis.day).each((i, el) => {
                 var text = "";
-                if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("weekdaySuffix");
+                if ($(el).attr(eds.withPrefix) == t1) text += EsLocale.get("weekdayPrefix");
                 text += ds.dayText;
                 if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("weekdaySuffix");
                 el.innerText = text;
             });
+            $bound.find(uis.shortDay).each((i, el) => {
+                var text = "";
+                if ($(el).attr(eds.withPrefix) == t1) text += EsLocale.get("weekdayShortPrefix");
+                text += ds.dayTextShort;
+                if ($(el).attr(eds.withSuffix) == t1) text += EsLocale.get("weekdayShortSuffix");
+                el.innerText = text;
+            });
         }
+    }
+}
+
+
+// exported content
+class EstreExportedContentHandle extends EstreHandle {
+
+    // constants
+
+
+    // statics
+
+
+    // open property
+
+    
+    // enclosed property
+    #src;
+    #placeholder;
+
+
+    // getter and setter
+
+
+
+    constructor(bound, host) {
+        super(bound, host);
+    }
+
+
+    release() {
+        super.release();
+    }
+
+    init() {
+        super.init();
+
+        if (xu(this.#src)) this.#src = this.bound.dataset.src;
+        if (xu(this.#placeholder)) this.#placeholder = this.bound.dataset.placeholder?.let(it => it.length > 0 ? it : n) ?? "Please wait...";
+
+        this.loadContent();
+    }
+
+    loadContent() {
+        const src = this.#src;
+        const placeholder = this.#placeholder;
+        this.bound.innerHTML = placeholder;
+        if (nne(src)) fetch(src).then(response => response.text()).then(data => {
+            this.bound.innerHTML = data;
+        });
     }
 }
 
@@ -10358,7 +11981,7 @@ class EstreEzHidableHandle extends EstreHandle {
         this.bound.hide = function() {
             if (this.dataset.hide != null && this.dataset.hide != "0") {
                 this.dataset.hide = "0";
-                setTimeout(() => {
+                setTimeout(_ => {
                     if (this.dataset.hide == "") this.dataset.hide = "1";
                 }, cvt.t2ms($(this).css(a.trdr)));
             }
@@ -10367,7 +11990,7 @@ class EstreEzHidableHandle extends EstreHandle {
         this.bound.show = function() {
             const appear = () => {
                 this.dataset.hide = "";
-                setTimeout(() => {
+                setTimeout(_ => {
                     if (this.dataset.hide == "") delete this.dataset.hide;
                 }, cvt.t2ms($(this).css(a.trdr)));
             };
@@ -10375,7 +11998,7 @@ class EstreEzHidableHandle extends EstreHandle {
             if (this.dataset.hide == "0") appear();
             else if (this.dataset.hide == "1") {
                 this.dataset.hide = "0";
-                setTimeout(() => {
+                setTimeout(_ => {
                     if (this.dataset.hide == "0") appear();
                 }, 0);
             }
@@ -10597,7 +12220,7 @@ class EstreSwipeHandler {
     }
 
     #dropHandle() {
-        setTimeout(() => this.$wind.attr(eds.onSwipe, null), 0);
+        setTimeout(_ => this.$wind.attr(eds.onSwipe, null), 0);
         //this.#$outerBound.off(this.#upTriggers, null, this.#onClick);
         this.#$bound.off(this.#handles, null, this.#onEvent);
         this.$wind.off(this.#handles, null, this.#onEvent);
@@ -10964,7 +12587,7 @@ class EstreSwipeHandler {
                     else if (onClearBound.delay == null) {
                         this.#clearBound();
                         if (onClearBound.callback != null) onClearBound.callback();
-                    } else setTimeout(() => {
+                    } else setTimeout(_ => {
                         this.#clearBound();
                         if (onClearBound.callback != null) onClearBound.callback();
                     }, onClearBound.delay);
@@ -10978,7 +12601,7 @@ class EstreSwipeHandler {
                     return handled;
                 };
                 var handled = true;
-                if (canceled) setTimeout(() => { clear(); }, this.cancelDelay);
+                if (canceled) setTimeout(_ => { clear(); }, this.cancelDelay);
                 else handled = clear();
                 if (handled) {
                     if (this.preventUp) {
@@ -11114,7 +12737,7 @@ class EstreSwipeHandler {
                         this.#eventOrigin = null;
                     } else if (handled) {
                         if (this.isDebug) console.log("handled");
-                        if (this.#grabMarker == null) this.#grabMarker = setTimeout(() => {
+                        if (this.#grabMarker == null) this.#grabMarker = setTimeout(_ => {
                             if (this.handled && this.#$responseBound.attr(eds.onGrab) != t1) {
                                 this.#$responseBound.attr(eds.onGrab, t1);
                             }
@@ -11183,6 +12806,573 @@ class EstreSwipeHandler {
         return this;
     }
 
+}
+
+
+
+class EstreDraggableHandler {
+
+    // enclosed property
+    #isEnabledTouch = f;
+
+    // open property
+    $bound;
+    bound;
+
+    draggableAxis = "vertical"; // "both", "horizontal", "vertical"
+    // currently supports only vertical
+
+    useTouchSupport = n; // null is auto
+
+
+    // getter and setter
+    get isTouchSupported() { return "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0 ||
+        navigator.msMaxTouchPoints > 0 ||
+        window.DocumentTouch && document instanceof DocumentTouch; }
+
+
+    // instant methods
+    startTouch = _ => {};
+    getDragDistance = _ => {};
+    shouldMoveDraggingItem = _ => {};
+    performDragMove = _ => {};
+    startDragging = _ => {};
+    endDragging = _ => {};
+    clearGhost = _ => {};
+
+
+    constructor($bound, axis = "vertical", useTouchSupport = n) {
+        this.useTouchSupport = useTouchSupport;
+        if (useTouchSupport || (useTouchSupport == n && this.isTouchSupported && !isAndroid)) this.#isEnabledTouch = t;
+        this.draggableAxis = axis;
+        this.$bound = $bound;
+        this.bound = $bound[0];
+        for (const bound of $bound) bound.draggableHandler = this;
+        this.init();
+    }
+
+    release() {
+        $(document).off('touchstart.dragHandler');
+        this.endDragging();
+        for (const bound of this.$bound) delete bound.draggableHandler;
+
+        if (this.$blockingBound != null && this.eventBlocker != null) {
+            this.$blockingBound.off("click touchstart touchmove touchend touchcancel", this.eventBlocker);
+            this.$blockingBound = null;
+            this.eventBlocker = null;
+        }
+    }
+
+    init() {
+        const handler = this;
+
+        const $draggables = this.$bound.find(aiv("draggable", "true"));
+        const $containers = this.$bound.find(aiv("droppable", "true"));
+
+        let $topScrollerPad = this.$bound.find(aiv("scroller-pad", "top"));
+        let $bottomScrollerPad = this.$bound.find(aiv("scroller-pad", "bottom"));
+        if (this.draggableAxis == "both" || this.draggableAxis == "vertical") {
+            if ($topScrollerPad.length < 1) {
+                const topPad = doc.ce(div, n, n, n, { "scroller-pad": "top" });
+                this.$bound.append(topPad);
+                $topScrollerPad = this.$bound.find(aiv("scroller-pad", "top"));
+            }
+            if ($bottomScrollerPad.length < 1) {
+                const bottomPad = doc.ce(div, n, n, n, { "scroller-pad": "bottom" });
+                this.$bound.append(bottomPad);
+                $bottomScrollerPad = this.$bound.find(aiv("scroller-pad", "bottom"));
+            }
+        }
+
+        // Remove existing events
+        $draggables.off("dragstart dragend touchstart touchmove touchend touchcancel");
+        $containers.off("dragover dragleave drop touchmove touchend touchcancel");
+        $topScrollerPad.off("dragover dragleave drop touchmove touchend touchcancel");
+        $bottomScrollerPad.off("dragover dragleave drop touchmove touchend touchcancel");
+        
+        const scrollDistance = 10;
+        const scrollTerminal = 16; // ~60fps
+        let topScrollInterval = n;
+        let bottomScrollInterval = n;
+
+        let draggingItem = n;
+        let isDragging = false;
+        let touchData = { 
+            startX: 0, 
+            startY: 0, 
+            currentX: 0, 
+            currentY: 0,
+            startTime: 0,
+            moved: false,
+            dragThreshold: 10 // Drag start threshold in pixels
+        };
+        let ghostElement = null;
+        let dragStartTimeout = null;
+        let lastDragPosition = { container: null, afterElement: null, timestamp: 0 };
+        let dragMoveThrottle = null;
+
+        // Helper function for touch start
+        this.startTouch = (element, touch) => {
+            touchData.startX = touch.clientX;
+            touchData.startY = touch.clientY;
+            touchData.currentX = touch.clientX;
+            touchData.currentY = touch.clientY;
+            touchData.startTime = Date.now();
+            touchData.moved = false;
+            draggingItem = element;
+            this.clearGhost();
+        };
+
+        // Calculate drag distance
+        this.getDragDistance = () => {
+            const deltaX = touchData.currentX - touchData.startX;
+            const deltaY = touchData.currentY - touchData.startY;
+            return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        };
+
+        // Check if element position needs to be changed
+        this.shouldMoveDraggingItem = (targetContainer, afterElement) => {
+            const currentParent = draggingItem.parentNode;
+            const currentNext = draggingItem.nextSibling;
+            
+            // Different container - always move
+            if (currentParent !== targetContainer) {
+                return true;
+            }
+            
+            // Same container - check if position actually changes
+            if (afterElement === null) {
+                // Moving to end - only move if not already at end
+                return currentNext !== null;
+            } else {
+                // Moving before specific element - only move if not already before it
+                return currentNext !== afterElement;
+            }
+        };
+
+        // Perform DOM move with throttling to prevent excessive operations
+        this.performDragMove = (targetContainer, afterElement) => {
+            const now = Date.now();
+            
+            // Check if this is the same position as last move (within 50ms)
+            if (lastDragPosition.container === targetContainer && 
+                lastDragPosition.afterElement === afterElement && 
+                (now - lastDragPosition.timestamp) < 50) {
+                return;
+            }
+            
+            // Check if actual move is needed
+            if (!this.shouldMoveDraggingItem(targetContainer, afterElement)) {
+                return;
+            }
+            
+            // Clear any pending throttled move
+            if (dragMoveThrottle) {
+                clearTimeout(dragMoveThrottle);
+                dragMoveThrottle = null;
+            }
+            
+            // Throttle the move operation
+            dragMoveThrottle = setTimeout(() => {
+                if (draggingItem && targetContainer) {
+                    try {
+                        if (afterElement === null) {
+                            targetContainer.appendChild(draggingItem);
+                        } else {
+                            targetContainer.insertBefore(draggingItem, afterElement);
+                        }
+                        
+                        // Update last position
+                        lastDragPosition = {
+                            container: targetContainer,
+                            afterElement: afterElement,
+                            timestamp: Date.now()
+                        };
+                    } catch (error) {
+                        console.warn('Drag move operation failed:', error);
+                    }
+                }
+                dragMoveThrottle = null;
+            }, 16); // ~60fps throttling
+        };
+
+        // Handle drag start
+        this.startDragging = (element) => {
+            if (isDragging) return;
+            
+            isDragging = true;
+            this.$bound.attr("data-dragging", t1);
+            element.dataset.dragging = t1;
+            
+            // Create ghost element for visual feedback
+            ghostElement = element.cloneNode(true);
+            ghostElement.classList.add('ghost-element');
+            ghostElement.style.cssText = `
+                position: fixed !important;
+                z-index: 9999 !important;
+                left: ${touchData.currentX - 200}px !important;
+                top: ${touchData.currentY - 25}px !important;
+                border-radius: 8px !important;
+                box-shadow: 0 8px 16px var(--color-boundary-o20) !important;
+                opacity: 0.8 !important;
+                pointer-events: none !important;
+                transform: rotate(5deg) scale(1.05) !important;
+                transition-duration: 0s;
+            `;
+            document.body.appendChild(ghostElement);
+        };
+
+        // Handle drag end
+        this.endDragging = () => {
+            // Clear drag timeout
+            if (dragStartTimeout) {
+                clearTimeout(dragStartTimeout);
+                dragStartTimeout = null;
+            }
+            
+            // Clear drag move timeout
+            if (dragMoveThrottle) {
+                clearTimeout(dragMoveThrottle);
+                dragMoveThrottle = null;
+            }
+            
+            // Clear scroll intervals
+            if (topScrollInterval != n) {
+                clearInterval(topScrollInterval);
+                topScrollInterval = n;
+            }
+            if (bottomScrollInterval != n) {
+                clearInterval(bottomScrollInterval);
+                bottomScrollInterval = n;
+            }
+            
+            // Remove ghost element
+            this.clearGhost();
+            
+            // Remove all highlights
+            setTimeout(_ => {
+                $containers.removeAttr("data-highlight");
+            }, 200);
+            
+            if (!isDragging) return;
+            
+            isDragging = false;
+            this.$bound.removeAttr("data-dragging");
+            
+            // Remove drag state
+            if (draggingItem) {
+                draggingItem.dataset.dragging = n;
+                draggingItem = n;
+            }
+            
+            // Reset position tracking
+            lastDragPosition = { container: null, afterElement: null, timestamp: 0 };
+        };
+
+        this.clearGhost = () => {
+            if (ghostElement && ghostElement.parentNode) {
+                ghostElement.parentNode.removeChild(ghostElement);
+                ghostElement = null;
+            }
+            $(doc.b).find(c.c + cls + "ghost-element").remove();
+        };
+
+        // Touch start event
+        if (this.#isEnabledTouch) $draggables.on({
+            "touchstart": function (e) {
+                const touch = e.originalEvent.touches[0];
+                handler.startTouch(this, touch);
+                
+                // Set delayed timeout for drag start
+                dragStartTimeout = setTimeout(() => {
+                    if (draggingItem === this && !isDragging && !touchData.moved) {
+                        handler.startDragging(this);
+                    }
+                }, 150); // Start drag mode after 150ms hold
+            },
+
+            // Touch move event
+            "touchmove": function (e) {
+                const touch = e.originalEvent.touches[0];
+                touchData.currentX = touch.clientX;
+                touchData.currentY = touch.clientY;
+                
+                // Detect movement
+                if (!touchData.moved) {
+                    const distance = handler.getDragDistance();
+                    if (distance > touchData.dragThreshold) {
+                        if (isDragging) {
+                            touchData.moved = true;
+                        } else {
+                            handler.endDragging();
+                        }
+                    }
+                }
+                
+                // Do not process if not dragging
+                if (!isDragging) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Update ghost element position
+                if (ghostElement) {
+                    ghostElement.style.left = (touchData.currentX - 200) + 'px';
+                    ghostElement.style.top = (touchData.currentY - 25) + 'px';
+                }
+                
+                // Find drop target from touch position
+                const elementBelow = document.elementFromPoint(touchData.currentX, touchData.currentY);
+                const container = elementBelow?.closest(aiv("droppable", "true"));
+                const topScrollPad = elementBelow?.closest(aiv("scroller-pad", "top"));
+                const bottomScrollPad = elementBelow?.closest(aiv("scroller-pad", "bottom"));
+                
+                // Handle auto-scrolling for touch drag
+                if (topScrollPad) {
+                    if (topScrollInterval == n) {
+                        topScrollInterval = setInterval(() => {
+                            handler.bound.scrollTop = handler.bound.scrollTop - scrollDistance;
+                        }, scrollTerminal);
+                    }
+                } else if (bottomScrollPad) {
+                    if (bottomScrollInterval == n) {
+                        bottomScrollInterval = setInterval(() => {
+                            handler.bound.scrollTop = handler.bound.scrollTop + scrollDistance;
+                        }, scrollTerminal);
+                    }
+                } else {
+                    // Stop scrolling when not on scroll pads
+                    if (topScrollInterval != n) {
+                        clearInterval(topScrollInterval);
+                        topScrollInterval = n;
+                    }
+                    if (bottomScrollInterval != n) {
+                        clearInterval(bottomScrollInterval);
+                        bottomScrollInterval = n;
+                    }
+                }
+                
+                if (container) {
+                    // Remove highlights from all containers
+                    $containers.removeAttr("data-highlight");
+                    
+                    // Apply highlight to current container
+                    container.dataset.highlight = t1;
+                    
+                    // Use improved drag move logic
+                    const afterElement = handler.getDragAfterElement(container, touchData.currentY);
+                    handler.performDragMove(container, afterElement);
+                } else {
+                    // Remove highlight when outside containers
+                    $containers.removeAttr("data-highlight");
+                }
+            },
+
+            // Touch end event
+            "touchend": function (e) {
+                // Clear scroll intervals on touch end
+                if (topScrollInterval != n) {
+                    clearInterval(topScrollInterval);
+                    topScrollInterval = n;
+                }
+                if (bottomScrollInterval != n) {
+                    clearInterval(bottomScrollInterval);
+                    bottomScrollInterval = n;
+                }
+                
+                // Treat as click if touch is short and movement is minimal
+                const touchDuration = Date.now() - touchData.startTime;
+                const dragDistance = handler.getDragDistance();
+                
+                if (!isDragging && touchDuration < 200 && dragDistance < touchData.dragThreshold) {
+                    // Handle as regular click - allow default behavior
+                    handler.endDragging();
+                    return;
+                }
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                handler.endDragging();
+            },
+
+            // Touch cancel event
+            "touchcancel": function (e) {
+                // Clear scroll intervals on touch cancel
+                if (topScrollInterval != n) {
+                    clearInterval(topScrollInterval);
+                    topScrollInterval = n;
+                }
+                if (bottomScrollInterval != n) {
+                    clearInterval(bottomScrollInterval);
+                    bottomScrollInterval = n;
+                }
+                
+                handler.endDragging();
+            },
+        });
+
+         // Desktop drag events
+        $draggables.on({
+            "dragstart": function (e) {
+                draggingItem = this;
+                isDragging = true;
+                handler.$bound.attr("data-dragging", t1);
+                postQueue(_ => { this.dataset.dragging = t1; });
+                const event = e.originalEvent;
+                event.dataTransfer.effectAllowed = "move";
+                event.dataTransfer.setDragImage(this, e.offsetX, e.offsetY);
+            },
+
+            "dragend": function (e) {
+                draggingItem = n;
+                isDragging = false;
+                handler.$bound.removeAttr("data-dragging");
+                this.dataset.dragging = n;
+                $containers.removeAttr("data-highlight");
+            },
+        });
+
+       // Desktop container events
+        $containers.on({
+            "dragover": function (e) {
+                e.preventDefault();
+
+                $containers.removeAttr("data-highlight");
+                this.dataset.highlight = t1;
+                const event = e.originalEvent;
+                event.dataTransfer.dropEffect = "move";
+                
+                // Use improved drag move logic
+                const afterElement = handler.getDragAfterElement(this, e.clientY);
+                if (handler.#isEnabledTouch) handler.performDragMove(this, afterElement);
+                else if (afterElement === null) this.appendChild(draggingItem);
+                else this.insertBefore(draggingItem, afterElement);
+
+                return false;
+            },
+
+            "dragleave": function (e) {
+                // Prevent dragleave from being triggered incorrectly by child elements
+                const rect = this.getBoundingClientRect();
+                const isOutside = e.clientX < rect.left || e.clientX > rect.right || 
+                                e.clientY < rect.top || e.clientY > rect.bottom;
+                
+                if (isOutside) {
+                    delete this.dataset.highlight;
+                }
+            },
+
+            "drop": function (e) {
+                e.preventDefault();
+                
+                delete this.dataset.highlight;
+
+                return false;
+            },
+        });
+
+
+        $topScrollerPad.on({
+            "dragover": function (e) {
+                e.preventDefault();
+
+                if (topScrollInterval == n) {
+                    topScrollInterval = setInterval(() => {
+                        handler.bound.scrollTop = handler.bound.scrollTop - scrollDistance;
+                    }, scrollTerminal);
+                }
+
+                return false;
+            },
+
+            "dragleave": function (e) {
+                if (topScrollInterval != n) {
+                    clearInterval(topScrollInterval);
+                    topScrollInterval = n;
+                }
+            },
+
+            "drop": function (e) {
+                e.preventDefault();
+
+                if (topScrollInterval != n) {
+                    clearInterval(topScrollInterval);
+                    topScrollInterval = n;
+                }
+
+                return false;
+            },
+        });
+        $bottomScrollerPad.on({
+            "dragover": function (e) {
+                e.preventDefault();
+
+                if (bottomScrollInterval == n) {
+                    bottomScrollInterval = setInterval(() => {
+                        handler.bound.scrollTop = handler.bound.scrollTop + scrollDistance;
+                    }, scrollTerminal);
+                }
+
+                return false;
+            },
+
+            "dragleave": function (e) {
+                if (bottomScrollInterval != n) {
+                    clearInterval(bottomScrollInterval);
+                    bottomScrollInterval = n;
+                }
+            },
+
+            "drop": function (e) {
+                e.preventDefault();
+
+                if (bottomScrollInterval != n) {
+                    clearInterval(bottomScrollInterval);
+                    bottomScrollInterval = n;
+                }
+
+                return false;
+            },
+        });
+
+        // Global touch event to handle drag end during scroll
+        $(document).on('touchstart.dragHandler', function(e) {
+            if (isDragging && !$(e.target).closest(aiv("draggable", "true")).length) {
+                handler.endDragging();
+            }
+        });
+    }
+
+    getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll(li + aiv("draggable", "true") + naiv("data-dragging", t1))];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+            else return closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    blockEventLeaks($closestBound = this.$bound) {
+        if (this.$blockingBound != null && this.eventBlocker != null) {
+            this.$blockingBound.off("click touchstart touchmove touchend touchcancel", this.eventBlocker);
+        }
+
+        this.eventBlocker = function (e) {
+            // e.preventDefault();
+            e.stopPropagation();
+
+            // return false;
+        }
+
+        this.$blockingBound = $closestBound;
+
+        $closestBound.on("click touchstart touchmove touchend touchcancel", this.eventBlocker);
+
+        return this;
+    }
 }
 
 
@@ -11260,6 +13450,7 @@ const estreUi = {
 
     //elements
     $fixedBottom: null,
+    $tabsbar: null,
     $rootbar: null,
     $rootTabs: null,
 
@@ -11314,8 +13505,7 @@ const estreUi = {
     get stockScheduler() { return this.unifiedCalendar.scheduler; },
 
     //inits
-    init: function(setOnReady = true) {
-
+    init(setOnReady = true) {
         EstreHandle.commit();
         EstreUiPage.commit();
         scheduleDataSet.commit();
@@ -11327,54 +13517,167 @@ const estreUi = {
         this.$overlayArea = $("nav#managedOverlay");
 
         this.$mainMenu = $("nav#mainMenu");
-        this.$menuArea = this.$mainMenu.find("section#menuArea");
-        this.$grabArea = this.$mainMenu.find("section#grabArea");
 
         this.$fixedTop = $("header#fixedTop");
-        this.$appbar = this.$fixedTop.find("section#appbar");
-        this.$homeBtn = this.$appbar.find("button#home");
-        this.$mainMenuBtn = this.$appbar.find("button#mainMenuBtn");
-        this.$mainMenuBtnLottie = this.$mainMenuBtn.find("dotlottie-player");
 
         this.$fixedBottom = $("#fixedBottom");
-        this.$rootbar = this.$fixedBottom.find("nav#rootbar");
 
         
         // events
         this.setReload();
         this.setBackNavigation();
         this.setMenuSwipeHandler();
-        this.$grabArea.click(this.mainMenuGrabAreaOnclick);
 
-        this.$mainMenuBtn.click(this.mainMenuBtnOnClick);
+
+        const onLoadedFixedBottom = async _ => {
+            this.$tabsbar = this.$fixedBottom.find(".tabsbar");
+            this.$rootbar = this.$fixedBottom.find("nav#rootbar");
+            this.initRootbar();
+        }
+
+        const onLoadedFixedTop = subTerm => {
+            this.$appbar = this.$fixedTop.find("section#appbar");
+            this.$homeBtn = this.$appbar.find("button#home");
+            this.$mainMenuBtn = this.$appbar.find("button#mainMenuBtn");
+            this.$mainMenuBtnLottie = this.$mainMenuBtn.find(uis.dotlottiePlayer);
+
+            this.$mainMenuBtn.click(this.mainMenuBtnOnClick);
+            return this.initHeaderBars(subTerm);
+        }
+
+        const onLoadedStaticDoc = subTerm => {
+            return this.initStaticContents(subTerm);
+        }
+
+        const onLoadedInstantDoc = subTerm => {
+            return this.initInstantContents(subTerm);
+        }
+
+        const onLoadedManagedOverlay = subTerm => {
+            return this.initOverlayContents(subTerm);
+        }
+
+        const onLoadedMainMenu = subTerm => {
+            this.$menuArea = this.$mainMenu.find("section#menuArea");
+            this.$grabArea = this.$mainMenu.find("section#grabArea");
+
+            this.$grabArea.click(this.mainMenuGrabAreaOnclick);
+            return this.initStaticMenus(subTerm);
+        }
+
+
+        const loadExported = url => fetch(url).then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text();
+        });
+
+
+        let loadExportedFixedBottom;
+        loadExportedFixedBottom = _ => loadExported("fixedBottom.html").then(htmlContent => {
+            this.$fixedBottom.prepend(htmlContent);
+            return onLoadedFixedBottom();
+        }).catch(error => {
+            console.error("There has been a problem with your fetch operation for fixedBottom: ", error);
+            console.log("Retrying to load fixedBottom...");
+            return loadExportedFixedBottom();
+        });
+
+        let loadExportedFixedTop;
+        loadExportedFixedTop = subTerm => loadExported("fixedTop.html").then(htmlContent => {
+            this.$fixedTop.prepend(htmlContent);
+            return onLoadedFixedTop(subTerm);
+        }).catch(error => {
+            console.error("There has been a problem with your fetch operation for fixedTop: ", error);
+            console.log("Retrying to load fixedTop...");
+            return loadExportedFixedTop(subTerm);
+        });
+
+        let loadExportedStaticDoc;
+        loadExportedStaticDoc = subTerm => loadExported("staticDoc.html").then(htmlContent => {
+            this.$mainArea.prepend(htmlContent);
+            return onLoadedStaticDoc(subTerm);
+        }).catch(error => {
+            console.error("There has been a problem with your fetch operation for staticDoc: ", error);
+            console.log("Retrying to load staticDoc...");
+            return loadExportedStaticDoc(subTerm);
+        });
+
+        let loadExportedInstantDoc;
+        loadExportedInstantDoc = subTerm => loadExported("instantDoc.html").then(htmlContent => {
+            this.$blindArea.prepend(htmlContent);
+            return onLoadedInstantDoc(subTerm);
+        }).catch(error => {
+            console.error("There has been a problem with your fetch operation for instantDoc: ", error);
+            console.log("Retrying to load instantDoc...");
+            return loadExportedInstantDoc(subTerm);
+        });
+
+        let loadExportedManagedOverlay;
+        loadExportedManagedOverlay = subTerm => loadExported("managedOverlay.html").then(htmlContent => {
+            this.$overlayArea.prepend(htmlContent);
+            return onLoadedManagedOverlay(subTerm);
+        }).catch(error => {
+            console.error("There has been a problem with your fetch operation for managedOverlay: ", error);
+            console.log("Retrying to load managedOverlay...");
+            return loadExportedManagedOverlay(subTerm);
+        });
+
+        let loadExportedMainMenu;
+        loadExportedMainMenu = subTerm => loadExported("mainMenu.html").then(htmlContent => {
+            this.$mainMenu.prepend(htmlContent);
+            return onLoadedMainMenu(subTerm);
+        }).catch(error => {
+            console.error("There has been a problem with your fetch operation for mainMenu: ", error);
+            console.log("Retrying to load mainMenu...");
+            return loadExportedMainMenu(subTerm);
+        });
 
 
         //common element initializing
-        pageManager.init();
-        this.initRootbar();
-        this.initOverlayContents();
-        this.initInstantContents();
-        this.initStaticContents();
-        this.initStaticMenus();
-        this.initHeaderBars();
-        this.initSessionManager();
+        const term = 1;//isIPhone ? 1000 : 1;
+        const subTerm = 0;//isIPhone ? 200 : 0;
+        const delayer = (delay = term) => postPromise(resolve => setTimeout(resolve, delay));
+        return postAsyncQueue(async _ => {
+            // await delayer();
+            pageManager.init();
 
-        // $("#splashRoot").css("z-index", null);
+            const topBottomLoader = [
+                this.$fixedBottom.attr(eds.exported) == t1 ? loadExportedFixedBottom() : onLoadedFixedBottom(),
+                this.$fixedTop.attr(eds.exported) == t1 ? loadExportedFixedTop(subTerm) : onLoadedFixedTop(subTerm),
+            ];
 
-        const inst = this;
-        window.addEventListener("focus", function (e) {
-            // note("onFocus");
-            inst.onFocus();
+            const mainLoader = [
+                this.$overlayArea.attr(eds.exported) == t1 ? loadExportedManagedOverlay(subTerm) : onLoadedManagedOverlay(subTerm),
+                postAsyncQueue(async _ => {
+                    await Promise.all(topBottomLoader);
+                    return await (this.$mainArea.attr(eds.exported) == t1 ? loadExportedStaticDoc(subTerm) : onLoadedStaticDoc(subTerm));
+                }),
+                this.$blindArea.attr(eds.exported) == t1 ? loadExportedInstantDoc(subTerm) : onLoadedInstantDoc(subTerm),
+            ];
+
+            await Promise.all(mainLoader);
+
+            await (this.$mainMenu.attr(eds.exported) == t1 ? loadExportedMainMenu(subTerm) : onLoadedMainMenu(subTerm));
+
+            this.initSessionManager();
+
+            
+            // $("#splashRoot").css("z-index", null);
+
+            window.addEventListener("focus", (e) => {
+                // note("onFocus");
+                this.onFocus();
+            });
+            window.addEventListener("blur", (e) => {
+                // note("onBlur");
+                this.onBlur();
+            });
+
+            if (setOnReady) this.checkOnReady();
         });
-        window.addEventListener("blur", function (e) {
-            // note("onBlur");
-            inst.onBlur();
-        });
-
-        if (setOnReady) this.checkOnReady();
     },
 
-    setReload: function () {
+    setReload() {
         const inst = this;
         $(window).on("keydown", function (e) {
             if ((e.which || e.keyCode) == 116) {
@@ -11387,7 +13690,7 @@ const estreUi = {
         });
     },
 
-    setBackNavigation: function () {
+    setBackNavigation() {
         const inst = this;
         window.addEventListener("popstate", async function (e) {
             const state = e.state;
@@ -11475,15 +13778,15 @@ const estreUi = {
 
 
     //mainMenu
-    setMenuSwipeHandler: function () {
+    setMenuSwipeHandler() {
         if (this.$mainMenu.length > 0) {
             this.releaseMenuSwipeHandler();
             const ui = this;
             this.menuSwipeHandler = new EstreSwipeHandler(this.$mainMenu).unuseY().setOnUp(function(grabX, grabY, handled, canceled, directed) {
-                //console.log("grabX: " + grabX + ", grabY: " + grabY + ", lastX: " + this.lastX + ", startX: " + this.startX);
+                if (window.isVerbosely) console.log("grabX: " + grabX + ", grabY: " + grabY + ", lastX: " + this.lastX + ", startX: " + this.startX);
                 if (handled) {
                     const isOpen = ui.$mainMenu.hasClass("right") ? grabX < 0 : grabX > 0;
-                    setTimeout(() => {
+                    setTimeout(_ => {
                         if (isOpen) ui.openMainMenu();
                         else ui.closeMainMenu();
                     }, 0);
@@ -11492,24 +13795,24 @@ const estreUi = {
         }
     },
 
-    releaseMenuSwipeHandler: function() {
+    releaseMenuSwipeHandler() {
         if (this.menuSwipeHandler != null) this.menuSwipeHandler.release();
     },
 
-    mainMenuBtnOnClick: function(e) {
+    mainMenuBtnOnClick(e) {
         estreUi.toggleMainMenuButton();
     },
 
-    mainMenuGrabAreaOnclick: function(e) {
+    mainMenuGrabAreaOnclick(e) {
         estreUi.closeMainMenu();
     },
 
-    toggleMainMenuButton: function() {
+    toggleMainMenuButton() {
         if (this.isOpenMainMenu) return this.closeMainMenu();
         else return this.openMainMenu();
     },
 
-    openMainMenu: function() {
+    openMainMenu() {
         if (!this.isOpenMainMenu) {
             this.$mainMenu.attr(eds.opened, t1);
             const $top = this.$menuSections.filter(asv(eds.onTop, t1));
@@ -11530,7 +13833,7 @@ const estreUi = {
         } else return false;
     },
 
-    closeMainMenu: function() {
+    closeMainMenu() {
         if (this.isOpenMainMenu) {
             this.$mainMenu.attr(eds.opened, "");
             // const $top = this.$menuSections.filter(asv(eds.onTop, t1));
@@ -11547,14 +13850,14 @@ const estreUi = {
         } else return false;
     },
 
-    getMainMenuLottie: function() {
+    getMainMenuLottie() {
         return this.$mainMenuBtnLottie[0]?.getLottie?.();
     },
 
 
     //rootbar
-    initRootbar: function() {
-        this.$rootTabs = this.$rootbar.find(c.c + btn);
+    initRootbar() {
+        this.$rootTabs = this.$tabsbar.find(c.c + btn);
         this.$rootTabs.attr(eds.active, "");
 
         var topId = null;
@@ -11579,7 +13882,7 @@ const estreUi = {
     },
 
 // === Currently not using
-    renderRootBar: function(esd) {
+    renderRootBar(esd) {
         this.$rootTabs.empty();
         this.$mainArea.empty();
         var topId = null;
@@ -11597,7 +13900,7 @@ const estreUi = {
         this.$rootTabs.filter(ax(eds.tabId)).click(this.rootTabOnClick);
     },
 
-    buildRootTabItem: function(esm) {
+    buildRootTabItem(esm) {
         const element = doc.ce(btn);
         element.setAttribute(m.cls, "tp_tiled_btn");
         element.setAttribute("title", esm.desc);
@@ -11606,7 +13909,7 @@ const estreUi = {
         return element;
     },
 
-    buildMainSection: function(esm) {
+    buildMainSection(esm) {
         const element = doc.ce(se);
         element.setAttribute(m.cls, "vfv_scroll");
         element.setAttribute("id", esm.id);
@@ -11614,8 +13917,8 @@ const estreUi = {
         return element;
     },
 
-    fetchContent: function(esm, target) {
-        fetch("." + esm.direct + estreStruct.structureSuffix)
+    fetchContent(esm, target) {
+        return fetch("." + esm.direct + estreStruct.structureSuffix)
             .then((response) => {
                 if (response.ok) return response.json();
                 throw Error("[" + response.status + "]" + response.url);
@@ -11624,11 +13927,12 @@ const estreUi = {
                 const parts = this.renderContentArea(data);
                 for (var part of parts) target.append(part);
             })
-            .catch((error) => console.log("fetch error: " + error));
-
+            .catch((error) => {
+                if (window.isLogging) console.error("fetch error: " + error);
+            });
     },
 
-    renderContentArea: function(ecm) {
+    renderContentArea(ecm) {
         const set = [];
         const article = doc.ce(ar);
         if (ecm.content.display == "constraint") article.setAttribute(m.cls, "constraint");
@@ -11642,7 +13946,7 @@ const estreUi = {
     },
 // ===========================
 
-    showExactAppbar: function(component, container, article) {
+    showExactAppbar(component, container, article) {
         const appbar = this.appbar;
         if (appbar == null) return;
         const currentExactComponent = this.isOpenMainMenu ? this.menuCurrentOnTop : this.mainCurrentOnTop;
@@ -11672,35 +13976,46 @@ const estreUi = {
         if (!success && isRootContainer) success = appbar.showContainer("root");
         if (!success && (!isHomeComponent || !isRootContainer)) success = appbar.showContainer("sub");
         estreUi.releaseAppbarPageTitle();
+        estreUi.releaseAppbarLeftToolSet();
         estreUi.releaseAppbarRightToolSet();
 
         return success;
     },
 
-    setAppbarPageTitle: function(text) {
+    setAppbarPageTitle(text) {
         this.appbar?.handler?.setPageTitle(text);
     },
 
-    releaseAppbarPageTitle: function() {
+    releaseAppbarPageTitle() {
         this.setAppbarPageTitle(this.isOpenMainMenu ? this.menuCurrentOnTop?.title ?? "" : this.mainCurrentOnTop?.title ?? "");
     },
 
-    setAppbarRightToolSet: function(frostOrCold, matchReplacer, dataName = "frozen") {
+    setAppbarLeftToolSet(frostOrCold, matchReplacer, dataName = "frozen") {
+        if (typeFunction(frostOrCold)) return frostOrCold(feed => this.appbar?.handler?.setAppbarLeftToolSet(feed, matchReplacer, dataName));
+        else return $(this.appbar?.handler?.setAppbarLeftToolSet(frostOrCold, matchReplacer, dataName));
+    },
+
+    releaseAppbarLeftToolSet() {
+        const appbarFeed = this.isOpenMainMenu ? this.menuCurrentOnTop?.appbarLeftFeed : this.mainCurrentOnTop?.appbarLeftFeed;
+        return this.setAppbarLeftToolSet(appbarFeed);
+    },
+
+    setAppbarRightToolSet(frostOrCold, matchReplacer, dataName = "frozen") {
         if (typeFunction(frostOrCold)) return frostOrCold(feed => this.appbar?.handler?.setAppbarRightToolSet(feed, matchReplacer, dataName));
         else return $(this.appbar?.handler?.setAppbarRightToolSet(frostOrCold, matchReplacer, dataName));
     },
 
-    releaseAppbarRightToolSet: function() {
+    releaseAppbarRightToolSet() {
         const appbarFeed = this.isOpenMainMenu ? this.menuCurrentOnTop?.appbarRightFeed : this.mainCurrentOnTop?.appbarRightFeed;
         return this.setAppbarRightToolSet(appbarFeed);
     },
 
-    rootTabOnClick: function(e) {
+    rootTabOnClick(e) {
         const target = this.tagName == BTN ? this : (e.target.tagName == BTN ? e.target : e.target.parentElement);
         estreUi.switchRootTab(target);
     },
 
-    switchRootTab: function($target, intent) {
+    switchRootTab($target, intent) {
         switch (typeof $target) {
             case "number":
                 if ($target < this.$rootTabs.length) return this.switchRootTab(this.$rootTabs[$target], intent);
@@ -11780,7 +14095,7 @@ const estreUi = {
         } else return false;
     },
 
-    openInstantBlinded: function(id, intent) {
+    openInstantBlinded(id, intent) {
         const page = pageManager.getComponent(id);
         if (page == null) return null;
         if (page.statement == "static") return null;
@@ -11792,8 +14107,11 @@ const estreUi = {
         return component;
     },
 
-    showInstantBlinded: function(id, intent) {
+    showInstantBlinded(id, intent) {
         const $targetSection = this.$blindSections.filter(eid + id);
+
+        if ($targetSection.length < 1) return false;
+
         const isModal = $targetSection.hasClass("modal");
 
         var unhandled = false;
@@ -11820,6 +14138,7 @@ const estreUi = {
         }
 
         const targetComponent = this.blindSections[id];
+        if (targetComponent == null) return false;
         targetComponent.pushIntent(intent);
         if (targetComponent.isOnTop) {
             unhandled = true;
@@ -11831,7 +14150,7 @@ const estreUi = {
         return !unhandled;
     },
 
-    closeInstantBlinded: async function(id) {
+    async closeInstantBlinded(id) {
         const component = this.blindSections[id];
         if (component == null) return null;
         const $targetSection = component.$host;
@@ -11840,27 +14159,28 @@ const estreUi = {
         if (isModal) {
             if (component.isOnTop) {
                 const closed = await this.closeModalSection(id, this.$blindSections, $targetSection);
-                if (!component.isStatic) this.releaseInstantContent(component);
+                if (!component.isStatic) await this.releaseInstantContent(component);
                 return closed;
             } else return null;
         } else {
             if (!component.$host.hasClass("home")) {
-                const closed = await component.close(false);
-                setTimeout(() => {
+                const isTermination = !component.isStatic;
+                const closed = await component.close(false, isTermination);
+                setTimeout(async _ => {
                     const $components = this.$blindSections.filter(naiv(m.id, id));
                     if ($components.length > 0) {
                         const prevComponent = this.prevBlindedId?.let(it => this.blindSections[it]);
-                        if (prevComponent != null) prevComponent.show();
-                        else $components[$components.length - 1]?.pageHandle?.show();
+                        if (prevComponent != null) await prevComponent.show();
+                        else await $components[$components.length - 1]?.pageHandle?.show();
                     }
                 }, 0);
-                if (!component.isStatic) this.releaseInstantContent(component);
+                if (isTermination) await this.releaseInstantContent(component);
                 return closed;
             } else return false;
         }
     },
 
-    openMenuArea: function(id, intent) {
+    openMenuArea(id, intent) {
         const page = pageManager.getComponent(id);
         if (page == null) return null;
         if (page.statement == "static") return null;
@@ -11872,8 +14192,11 @@ const estreUi = {
         return component;
     },
 
-    showMenuArea: function(id, intent) {
+    showMenuArea(id, intent) {
         const $targetSection = this.$menuSections.filter(eid + id);
+
+        if ($targetSection.length < 1) return false;
+        
         const isModal = $targetSection.hasClass("modal");
 
         var unhandled = false;
@@ -11890,6 +14213,7 @@ const estreUi = {
         }
 
         const targetComponent = this.menuSections[id];
+        if (targetComponent == null) return false;
         targetComponent.pushIntent(intent);
         if (targetComponent.isOnTop) {
             unhandled = true;
@@ -11903,7 +14227,7 @@ const estreUi = {
         return !unhandled;
     },
 
-    closeMenuArea: async function(id) {
+    async closeMenuArea(id) {
         const component = this.menuSections[id];
         if (component == null) return null;
         const $targetSection = component.$host;
@@ -11912,17 +14236,18 @@ const estreUi = {
         if (isModal) {
             if (component.isOnTop) {
                 const closed = await this.closeModalSection(id, this.$menuSections, $targetSection);
-                if (!component.isStatic) this.releaseInstantContent(component);
+                if (!component.isStatic) await this.releaseInstantContent(component);
                 return closed;
             } else return null;
         } else {
-            const closed = await component.close(false);
-            if (!component.isStatic) this.releaseInstantContent(component);
+            const isTermination = !component.isStatic;
+            const closed = await component.close(false, isTermination);
+            if (isTermination) await this.releaseInstantContent(component);
             return closed;
         }
     },
 
-    openHeaderBar: function(id, intent) {
+    openHeaderBar(id, intent) {
         const page = pageManager.getComponent(id);
         if (page == null) return null;
         if (page.statement == "static") return null;
@@ -11934,8 +14259,11 @@ const estreUi = {
         return component;
     },
 
-    showHeaderBar: function(id, intent) {
+    showHeaderBar(id, intent) {
         const $targetSection = this.$headerSections.filter(eid + id);
+
+        if ($targetSection.length < 1) return false;
+
         const isModal = $targetSection.hasClass("modal");
 
         var unhandled = false;
@@ -11952,6 +14280,7 @@ const estreUi = {
         }
 
         const targetComponent = this.headerSections[id];
+        if (targetComponent == null) return false;
         targetComponent.pushIntent(intent);
         if (targetComponent.isOnTop) {
             unhandled = true;
@@ -11963,7 +14292,7 @@ const estreUi = {
         return !unhandled;
     },
 
-    closeHeaderBar: async function(id) {
+    async closeHeaderBar(id) {
         const component = this.headerSections[id];
         if (component == null) return null;
         const $targetSection = component.$host;
@@ -11972,17 +14301,18 @@ const estreUi = {
         if (isModal) {
             if (component.isOnTop) {
                 const closed = await this.closeModalSection(id, this.$headerSections, $targetSection);
-                if (!component.isStatic) this.releaseInstantContent(component);
+                if (!component.isStatic) await this.releaseInstantContent(component);
                 return closed;
             } else return null;
         } else {
-            const closed = await component.close(false);
-            if (!component.isStatic) this.releaseInstantContent(component);
+            const isTermination = !component.isStatic;
+            const closed = await component.close(false, isTermination);
+            if (isTermination) await this.releaseInstantContent(component);
             return closed;
         }
     },
 
-    openManagedOverlay: function(id, intent) {
+    openManagedOverlay(id, intent) {
         const page = pageManager.getComponent(id, "overlay");
         if (page == null) return null;
         if (page.statement == "static") return null;
@@ -11994,8 +14324,11 @@ const estreUi = {
         return component;
     },
 
-    showManagedOverlay: function(id, intent) {
+    showManagedOverlay(id, intent) {
         const $targetSection = this.$overlaySections.filter(eid + id);
+
+        if ($targetSection.length < 1) return false;
+
         const isModal = $targetSection.hasClass("modal");
 
         var unhandled = false;
@@ -12012,6 +14345,7 @@ const estreUi = {
         }
 
         const targetComponent = this.overlaySections[id];
+        if (targetComponent == null) return false;
         targetComponent.pushIntent(intent);
         if (targetComponent.isOnTop) {
             unhandled = true;
@@ -12023,7 +14357,7 @@ const estreUi = {
         return !unhandled;
     },
 
-    closeManagedOverlay: async function(id) {
+    async closeManagedOverlay(id) {
         const component = this.overlaySections[id];
         if (component == null) return null;
         const $targetSection = component.$host;
@@ -12032,17 +14366,18 @@ const estreUi = {
         if (isModal) {
             if (component.isOnTop) {
                 const closed = await this.closeModalSection(id, this.$overlaySections, $targetSection);
-                if (!component.isStatic) this.releaseInstantContent(component);
+                if (!component.isStatic) await this.releaseInstantContent(component);
                 return closed;
             } else return null;
         } else {
-            const closed = await component.close(false);
-            if (!component.isStatic) this.releaseInstantContent(component);
+            const isTermination = !component.isStatic;
+            const closed = await component.close(false, isTermination);
+            if (isTermination) await this.releaseInstantContent(component);
             return closed;
         }
     },
 
-    openModalTab: function(id, $targetSection, intent = null, $sectionSet = this.$mainSections) {
+    openModalTab(id, $targetSection, intent = null, $sectionSet = this.$mainSections) {
         var $target = this.$fixedBottom.find(btn + aiv(eds.tabId, id));
         if ($target.length < 1) $target = this.$sessionGroupHolder.find(btn + aiv(eds.contained, "root") + aiv(eds.containerId, id));
 
@@ -12051,7 +14386,7 @@ const estreUi = {
         return this.openModalSection(id, $sectionSet, $targetSection, intent);
     },
 
-    openModalSection: function(id, $sectionSet = this.$mainSections, $targetSection, intent = null) {
+    openModalSection(id, $sectionSet = this.$mainSections, $targetSection, intent = null) {
         var $target = this.$fixedBottom.find(btn + aiv(eds.tabId, id));
         if ($target.length < 1) $target = this.$sessionGroupHolder.find(btn + aiv(eds.contained, "root") + aiv(eds.containerId, id));
 
@@ -12087,16 +14422,16 @@ const estreUi = {
         return $targetSection[0]?.pageHandle?.show(false);
     },
 
-    closeModalTab: async function(id, $targetSection, $sectionSet = this.$mainSections) {
+    closeModalTab(id, $targetSection, $sectionSet = this.$mainSections) {
         var $target = this.$fixedBottom.find(btn + aiv(eds.tabId, id));
         if ($target.length < 1) $target = this.$sessionGroupHolder.find(btn + aiv(eds.contained, "root") + aiv(eds.containerId, id));
 
         $target.attr(eds.active, "");
 
-        return await this.closeModalSection(id, $sectionSet, $targetSection);
+        return this.closeModalSection(id, $sectionSet, $targetSection);
     },
 
-    closeModalSection: async function(id, $sectionSet = this.$mainSections, $targetSection) {
+    closeModalSection(id, $sectionSet = this.$mainSections, $targetSection) {
         if ($targetSection == null) $targetSection = $sectionSet.filter(eid + id);
 
         // if ($sectionSet == this.$mainSections) this.prevRootTabId = $targetSection.attr("id");
@@ -12104,13 +14439,17 @@ const estreUi = {
         $targetSection.off("click");
         $targetSection.find(c.c + div + uis.container).off("click");
         
-        return await $targetSection[0]?.pageHandle?.close(false);
+        return $targetSection[0]?.pageHandle?.close(false);
     },
 
-    initOverlayContents: function() {
+    async initOverlayContents(term = 0) {
         const $oss = this.$overlaySections;
 
-        for (var i=0; i<$oss.length; i++) this.initOverlayContent($oss[i], null, true);
+        const delayer = (delay = term) => postPromise(resolve => setTimeout(resolve, delay));
+        for (var i=0; i<$oss.length; i++) {
+            this.initOverlayContent($oss[i], null, true);
+            await delayer();
+        }
 
         // let $top = this.$overlaySections.filter(asv(eds.onTop, t1));
         // if ($top.length < 1) $top = this.$overlaySections;
@@ -12137,10 +14476,14 @@ const estreUi = {
         return component;
     },
 
-    initInstantContents: function() {
+    async initInstantContents(term = 0) {
         const $bss = this.$blindSections;
 
-        for (var i=0; i<$bss.length; i++) this.initInstantContent($bss[i], null, true);
+        const delayer = (delay = term) => postPromise(resolve => setTimeout(resolve, delay));
+        for (var i=0; i<$bss.length; i++) {
+            this.initInstantContent($bss[i], null, true);
+            await delayer();
+        }
 
         const $top = this.$blindSections.filter(asv(eds.onTop, t1));
         // if ($top.length < 1) $top = this.$blindSections;
@@ -12171,12 +14514,16 @@ const estreUi = {
         return component;
     },
 
-    initStaticContents: function() {
+    async initStaticContents(term = 0) {
         const $mss = this.$mainSections;
 
-        for (var i=0; i<$mss.length; i++) this.initStaticContent($mss[i], null, true);
+        const delayer = (delay = term) => postPromise(resolve => setTimeout(resolve, delay));
+        for (var i=0; i<$mss.length; i++) {
+            this.initStaticContent($mss[i], null, true);
+            await delayer();
+        }
 
-        const $top = this.$mainSections.filter(asv(eds.onTop, t1));
+        let $top = this.$mainSections.filter(asv(eds.onTop, t1));
         if ($top.length < 1) $top = this.$mainSections.filter(eid + "home");
         if ($top.length < 1) $top = this.$mainSections.filter(cls + "home");
         if ($top.length < 1) $top = this.$mainSections;
@@ -12209,10 +14556,14 @@ const estreUi = {
         return component;
     },
 
-    initStaticMenus: function() {
+    async initStaticMenus(term = 0) {
         const $mss = this.$menuSections;
 
-        for (var i=0; i<$mss.length; i++) this.initStaticMenu($mss[i], null, true);
+        const delayer = (delay = term) => postPromise(resolve => setTimeout(resolve, delay));
+        for (var i=0; i<$mss.length; i++) {
+            this.initStaticMenu($mss[i], null, true);
+            await delayer();
+        }
 
         let $top = this.$menuSections.filter(asv(eds.onTop, t1));
         if ($top.length < 1) $top = this.$menuSections.filter(eid + "menuArea");
@@ -12243,10 +14594,14 @@ const estreUi = {
         return component;
     },
 
-    initHeaderBars: function() {
+    async initHeaderBars(term = 0) {
         const $hss = this.$headerSections;
 
-        for (var i=0; i<$hss.length; i++) this.initHeaderBar($hss[i], null, true);
+        const delayer = (delay = term) => postPromise(resolve => setTimeout(resolve, delay));
+        for (var i=0; i<$hss.length; i++) {
+            this.initHeaderBar($hss[i], null, true);
+            await delayer();
+        }
 
         let $top = this.$headerSections.filter(asv(eds.onTop, t1));
         if ($top.length < 1) $top = this.$headerSections.filter(eid + "appbar");
@@ -12278,7 +14633,7 @@ const estreUi = {
         return component;
     },
 
-    initSessionManager: function() {
+   initSessionManager() {
         this.$more = this.$mainSections.filter("#more");
         this.$sessionManager = this.$more.find(".session_manager");
         this.$sessionGroupHolder = this.$more.find(".session_group_holder");
@@ -12291,7 +14646,7 @@ const estreUi = {
         this.initSessionList(this.$openedPageList);  
     },
 
-    initSessionList: function($listHolder) {
+    initSessionList($listHolder) {
         const $list = $listHolder.find(uis.pageShortCut);
         for (var item of $list) {
             this.setEventSessionItem($(item));
@@ -12349,22 +14704,22 @@ const estreUi = {
         return this.onReload();
     },
 
-    async back() {
-        return await this.onBack();
+    back() {
+        return this.onBack();
     },
 
-    async closeContainer() {
-        return await this.onCloseContainer();
+    closeContainer() {
+        return this.onCloseContainer();
     },
 
     
-    onReload() {
-        return this.isOpenMainMenu ? this.onReloadMenu() : false ||
-            this.onReloadBlinded() || this.onReloadMain();
+    async onReload() {
+        return this.isOpenMainMenu ? await this.onReloadMenu() : false ||
+            await this.onReloadBlinded() || await this.onReloadMain();
     },
 
     async onBack() {
-        return await this.onBackOverlay() ||
+        return await this.onBackOverlay() || onBackWhile() ||
             this.isOpenMainMenu ? await this.onBackMenu() || await this.closeMainMenu() : false ||
             await this.onBackBlinded() || await this.onBackMain();
     },
@@ -12397,15 +14752,15 @@ const estreUi = {
     },
 
 
-    async onBackOverlay() {
+    onBackOverlay() {
         if (this.$overlaySections.filter(asv(eds.onTop, t1)).length > 0) {
-            return await this.overlayCurrentOnTop?.onBack() ?? false;
+            return this.overlayCurrentOnTop?.onBack() ?? false;
         } else return false;
     },
 
-    async onBackMenu() {
+    onBackMenu() {
         const currentOnTop = this.menuCurrentOnTop ?? this.menuArea;
-        return await currentOnTop?.onBack() ?? false;
+        return currentOnTop?.onBack() ?? false;
     },
 
     async onBackBlinded() {
@@ -12413,7 +14768,7 @@ const estreUi = {
         let processed = false;
         if (currentOnTop != null) processed = await currentOnTop.onBack();
         if (!processed && this.prevBlindedId != null) {
-            processed = this.showInstantBlinded(this.prevBlindedId);
+            processed = await this.showInstantBlinded(this.prevBlindedId);
             if (processed) this.prevBlindedId = null;
         }
         return processed;
@@ -12423,22 +14778,34 @@ const estreUi = {
         const currentOnTop = this.mainCurrentOnTop;
         let processed = false;
         if (currentOnTop != null) processed = await currentOnTop.onBack();
-        if (!processed && !currentOnTop.isHome) processed = this.switchRootTabPrev();
+        if (!processed) {
+            if (!currentOnTop.isHome) processed = await this.switchRootTabPrev();
+            else if (currentOnTop.intent?.bringOnBack != n) {
+                const bringOnBack = currentOnTop.intent?.bringOnBack;
+                if (bringOnBack.pid != n && bringOnBack.hostType == currentOnTop.hostType) {
+                    processed = t;
+                    const pid = bringOnBack.pid;
+                    if (window.isDebug) console.log("Bringing on back to " + pid);
+                    delete currentOnTop.intent.bringOnBack;
+                    pageManager.bringPage(pid);
+                }
+            }
+        }
         return processed;
     },
 
 
-    onFocus() {
+    async onFocus() {
         // <= to do implement
         // this.focus();
     },
     
-    onBlur() {
+    async onBlur() {
         // <= to do implement
     },
 
 
-    async onReady() {
+    onReady() {
         this.initialHistoryOffset = history.length;
         // note("[" + history.length + "] initial - null / null");
         this.euiState = "initializing";
@@ -12452,22 +14819,68 @@ const estreUi = {
     },
 
 
-    checkOnReady() {
-        EUX.setOnImagesFullyLoaded(() => {
-            EstreAsyncManager.setOnFinishedCurrentWorks(() => {
-                this.onReady();
-            });
-        });
+    async checkOnReady(awaitAsyncTasks = t, transitionDelay = 500, linkTimeout = 8000, imageTimeout = 3000) {
+        // lazy load of links
+        const head = doc.h;
+        const lazyLinks = head.querySelectorAll(m1 + aiv(lk, lz));
+        for (const lazy of lazyLinks) {
+            const link = doc.ce(lk);
+            for (const attr of lazy.attributes) {
+                if (attr.name == "link") continue;
+                link.setAttribute(attr.name, attr.value);
+            }
+            lazy.after(link);
+            lazy.remove();
+        }
+
+
+        const waiters = [];
+
+        waiters.push(EUX.setOnLinksFullyLoaded(_ => {
+            if (isStandalone) {
+                // is PWA
+
+            } else {
+                // isn't PWA
+                updateInsets({ type: "init"});
+                // setTimeout(() => updateInsets(), 3000);
+                window.addEventListener("load", updateInsets);
+                window.addEventListener('resize', updateInsets);
+                window.addEventListener('orientationchange', updateInsets);
+                document.addEventListener('scrollend', updateInsets);
+            }
+            
+            setTimeout(() => $("main#splashRoot").css("z-index", null), 0);
+        }, linkTimeout));
+
+        waiters.push(EUX.setOnImagesFullyLoaded(_ => {
+            // do nothing
+        }, imageTimeout));
+
+
+        if (awaitAsyncTasks) waiters.push(postPromise(resolve => {
+            const callback = _ => {
+                EstreAsyncManager.removeOnFinishedCurrentWorks(callback);
+                resolve();
+            };
+
+            EstreAsyncManager.setOnFinishedCurrentWorks(callback);
+        }));
+
+
+        await Promise.all(waiters);
+
+        setTimeout(_ => this.onReady(), transitionDelay);
     },
 
     setUiOnReady() {
         doc.$b.attr(eds.onReady, t0);
-        setTimeout(() => doc.$b.attr(eds.onReady, t1), cvt.t2ms($("main#splashRoot").css(a.trdr)));
+        setTimeout(_ => doc.$b.attr(eds.onReady, t1), cvt.t2ms($("main#splashRoot").css(a.trdr)));
     },
 
     unsetUiOnReady() {
         doc.$b.attr(eds.onReady, t0);
-        setTimeout(() => doc.$b.attr(eds.onReady, ""), cvt.t2ms($("main#splashRoot").css(a.trdr)));
+        setTimeout(_ => doc.$b.attr(eds.onReady, ""), cvt.t2ms($("main#splashRoot").css(a.trdr)));
     },
 
     eoo: eoo

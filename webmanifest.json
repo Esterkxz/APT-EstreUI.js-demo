@@ -1,4 +1,5 @@
 {
+    "id": "./",
     "name": "APT. application for Estre UI demonstration",
     "short_name": "APT.",
     "description": "Introduce the APT.(Apateu/Apartment) a word",
@@ -22,10 +23,16 @@
             "purpose": "maskable"
         }
     ],
-    "start_url": ".",
+    "start_url": "./serviceLoader.html",
     "theme_color": "#F77596",
     "background_color": "#F77596",
-    "display": "standalone",
-    "orientation": "any",
-    "scope": "."
+    "display_override": ["minimal-ui", "standalone"],
+    "display": "window-controls-overlay",
+    "orientation": "natural",
+    "scope": ".",
+    "serviceworker": {
+        "scope": "./",
+        "src": "./serviceWorker.js",
+        "updateViaCache": false
+    }
 }

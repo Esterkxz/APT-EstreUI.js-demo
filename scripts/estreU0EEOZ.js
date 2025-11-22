@@ -16,6 +16,10 @@ Doctre?.patch?.();
 const doc = {
     get b() { return document.body; },
     get $b() { return $(this.b); },
+    get e() { return document.documentElement; },
+    get $e() { return $(this.e); },
+    get h() { return document.head; },
+    get $h() { return $(this.h); },
 
     ce: (tagName, classIdName, contentData, style, attrs = {}, datas = {}) => Doctre.createElement(tagName, classIdName, contentData, style, attrs, datas),
     cte: (innerHtml) => {
@@ -60,6 +64,9 @@ if (typeof $ == UNDEFINED) $ = jQuery;
 
 
 // Tag alias constants
+const m1 = "meta";
+const lk = "link";
+const lz = "lazy";
 const bd = "body";
 const div = "div";
 const nv = "nav";
@@ -73,6 +80,12 @@ const h4 = "h4";
 const h5 = "h5";
 const ul = "ul";
 const li = "li";
+const tbl = "table";
+const thd = "thead";
+const tbd = "tbody";
+const tft = "tfoot";
+const tr = "tr";
+const td = "td";
 const br = "br";
 const hr = "hr";
 const lbl = "label";
@@ -81,6 +94,7 @@ const rb = "ruby";
 const rp = "rp";
 const rt = "rt";
 const pg = "p";
+const anc = "a";
 const img = "img";
 const frm = "form";
 const btn = "button";
@@ -90,8 +104,12 @@ const sel = "select";
 const opt = "option";
 const lp = "lottie-player";
 const dlp = "dotlottie-player";
+const dll = "dotlottie-loader";
 
 // Tag alias constants (Upper case) - for compare
+const M1 = "META";
+const LK = "LINK";
+const LZ = "LAZY";
 const BD = "BODY";
 const DIV = "DIV";
 const NV = "NAV";
@@ -136,8 +154,8 @@ const gtt = hee("gt");
 const itt = (tagName, attributes = {}, enumables = []) => {
     let texts = [lt + tagName];
 
-    if (isNotNully(attributes) && typeObject(attributes)) forkv((k, v) => { if (isNotNullAndEmpty(k) && isNotNully(v)) texts.push(k + eq + v4(v)); });
-    if (isNotNully(enumables) && typeObject(enumables) && isArray(enumables)) forof(v => { if (isNotNullAndEmpty(v)) texts.push(v); });
+    if (isNotNully(attributes) && typeObject(attributes)) forkv(attributes, (k, v) => { if (isNotNullAndEmpty(k) && isNotNully(v)) texts.push(k + eq + v4(v)); });
+    if (isNotNully(enumables) && typeObject(enumables) && isArray(enumables)) forof(enumables, v => { if (isNotNullAndEmpty(v)) texts.push(v); });
 
     texts.push(ss + gt);
     return texts.join(s);
@@ -151,8 +169,8 @@ const tip = (type, name, className, id) => itt(inp, { class: className, id, type
 const tag = (tagName, innerHtml = "", attributes = {}, enumables = []) => {
     let texts = [lt + tagName];
 
-    if (isNotNully(attributes) && typeObject(attributes)) forkv((k, v) => { if (isNotNullAndEmpty(k) && isNotNully(v)) texts.push(k + eq + v4(v)); });
-    if (isNotNully(enumables) && typeObject(enumables) && isArray(enumables)) forof(v => { if (isNotNullAndEmpty(v)) texts.push(v); });
+    if (isNotNully(attributes) && typeObject(attributes)) forkv(attributes, (k, v) => { if (isNotNullAndEmpty(k) && isNotNully(v)) texts.push(k + eq + v4(v)); });
+    if (isNotNully(enumables) && typeObject(enumables) && isArray(enumables)) forof(enumables, v => { if (isNotNullAndEmpty(v)) texts.push(v); });
 
     return (texts.join(s) + gt) + innerHtml + (lt + ss + tagName + gt);
 }
@@ -165,9 +183,9 @@ const ttt = (tagName, attributes = {}, enumables = []) => tag(tagName, "", attri
 const eb = (tagName, attributes = {}, enumables = [], property = {}) => {
     const elem = document.createElement(tagName);
 
-    if (isNotNully(attributes) && typeObject(attributes)) forkv((k, v) => { if (isNotNullAndEmpty(k) && isNotNully(v)) elem.setAttribute(k, v); });
-    if (isNotNully(enumables) && typeObject(enumables) && isArray(enumables)) forof(v => { if (isNotNullAndEmpty(v)) elem.setAttribute(v, es); });
-    if (isNotNully(property) && typeObject(property)) forkv((k, v) => { if (isNotNullAndEmpty(k)) elem[k] = v; });
+    if (isNotNully(attributes) && typeObject(attributes)) forkv(attributes, (k, v) => { if (isNotNullAndEmpty(k) && isNotNully(v)) elem.setAttribute(k, v); });
+    if (isNotNully(enumables) && typeObject(enumables) && isArray(enumables)) forof(enumables, v => { if (isNotNullAndEmpty(v)) elem.setAttribute(v, es); });
+    if (isNotNully(property) && typeObject(property)) forkv(property, (k, v) => { if (isNotNullAndEmpty(k)) elem[k] = v; });
 
     return elem;
 }
@@ -189,12 +207,15 @@ const m = {
     get d() { return "disabled"; },
     get dad() { return "disabled"; },
     get f() { return "for"; },
+    get for() { return "for"; },
     get i() { return "id"; },
     get id() { return "id"; },
+    get n() { return "name"; },
     get name() { return "name"; },
     get tp() { return "type"; },
     get ro() { return "readonly"; },
     get st() { return "style"; },
+    get ph() { return "placeholder"; },
     get t() { return "title"; },
 };
 
@@ -239,6 +260,43 @@ const ipt = typeText => inp + (isNully(typeText) ? ax(tp) : aiv(tp, typeText));
 const itc = typeCase => ipt(tv[typeCase]);
 
 
+// Tag text alias constants
+const g = {
+    attr(attrs) { return attrs?.entire.map(([k, v]) => k + (v?.let(it => eq + dq + it.replace(/"/g, '\"') + dq) ?? "")).join(s) ?? ""; },
+
+    solo(tagName, attrs) { return lt + tagName + s + this.attr(attrs) + ss + gt; },
+    pair(tagName, content = "", attrs) { return lt + tagName + s + this.attr(attrs) + gt + content + lt + ss + tagName + gt; },
+
+
+    get br() { return this.solo(br); },
+    get hr() { return this.solo(hr); },
+
+
+    brr(attrs) { return this.solo(br, attrs); },
+    hrr(attrs) { return this.solo(hr, attrs); },
+
+    img(attrs) { return this.solo(img, attrs); },
+    btn(attrs) { return this.solo(btn, attrs); },
+    inp(attrs) { return this.solo(inp, attrs); },
+
+
+    div(content = "", attrs) { return this.pair(div, content, attrs); },
+    sp(content = "", attrs) { return this.pair(sp, content, attrs); },
+    p(content = "", attrs) { return this.pair(pg, content, attrs); },
+    lbl(content = "", attrs) { return this.pair(lbl, content, attrs); },
+    a(content = "", attrs) { return this.pair(anc, content, attrs); },
+
+    ta(content = "", attrs) { return this.pair(ta, content, attrs); },
+
+    h1(content = "", attrs) { return this.pair(h1, content, attrs); },
+    h2(content = "", attrs) { return this.pair(h2, content, attrs); },
+    h3(content = "", attrs) { return this.pair(h3, content, attrs); },
+    h4(content = "", attrs) { return this.pair(h4, content, attrs); },
+    h5(content = "", attrs) { return this.pair(h5, content, attrs); },
+
+}
+
+
 // CSS combinator constants
 const c = {
     get a() { return ad; },
@@ -261,12 +319,12 @@ const st = cf;
 const ed = ds;
 const equ = eq;
 
-const ops = "(";
-const cps = ")";
-const obk = "[";
-const cbk = "]";
-const obc = "{";
-const cbc = "}";
+const ops = lr;
+const cps = rr;
+const obk = ls;
+const cbk = rs;
+const obc = lc;
+const cbc = rc;
 
 
 // CSS puesedo selector constant
@@ -377,6 +435,8 @@ const nti = val => nto + eid + val + cps;
 const nai = attr => nao + attr + equ;
 /** nav(val) = "val"] */
 const nav = val => dq + val + clv;
+/** nax(attr) = :not([attr]) */
+const nax = attr => nao + attr + cao;
 /** naiv(attr, val, append = "") = :not([attr="val"]append) */
 const naiv = (attr, val, append = "") => nai(attr) + nav(val) + append + cps;
 
@@ -646,18 +706,85 @@ class EUX {
     }
 
 
-    static setOnImagesFullyLoaded(callback = () => {}, debug = false) {
-        Promise.all(Array.from(document.images).map(img => {
+    static async setOnImagesFullyLoaded(callback = () => {}, timeout = 10000, debug = globalThis?.isDebug ?? false) {
+        await Promise.all(Array.from(document.images).map(img => {
             if (img.complete)
                 return Promise.resolve(img.naturalHeight !== 0);
             return new Promise(resolve => {
-                img.addEventListener('load', () => resolve(true));
-                img.addEventListener('error', () => resolve(false));
+                let clear;
+                const onLoad = e => {
+                    clear(e.target);
+                    resolve(true);
+                }
+                const onError = e => {
+                    clear(e.target);
+                    resolve(false);
+                }
+                const onTimeout = e => {
+                    clear(e.target);
+                    console.log('image load timeout:', e.target.src);
+                    resolve(false);
+                }
+                clear = elem => {
+                    elem.removeEventListener('load', onLoad);
+                    elem.removeEventListener('error', onError);
+                }
+
+                img.addEventListener('load', onLoad);
+                img.addEventListener('error', onError);
+                // Set timeout (10 seconds)
+                setTimeout(onTimeout, timeout, { target: img });
             });
         })).then(results => {
             if (debug) {
                 if (results.every(res => res)) console.log('all images loaded successfully');
                 else console.log('some images failed to load, all finished loading');
+            }
+
+            callback();
+        });
+    }
+
+
+    static async setOnLinksFullyLoaded(callback = () => {}, timeout = 10000, linkQuery = 'link[rel="stylesheet"]', debug = globalThis?.isDebug ?? false) {
+        const links = Array.from(document.querySelectorAll(linkQuery));
+        
+        await Promise.all(links.map(link => {
+            // Check if the stylesheet is already loaded
+            if (link.sheet || link.readyState === 'complete') {
+                return Promise.resolve(true);
+            }
+            
+            return new Promise(resolve => {
+                let clear;
+                const onLoad = e => {
+                    clear(e.target);
+                    resolve(true);
+                }
+                const onError = e => {
+                    clear(e.target);
+                    resolve(false);
+                }
+                const onTimeout = e => {
+                    clear(e.target);
+                    console.log('link load timeout:', e.target.href);
+                    resolve(false);
+                }
+                clear = elem => {
+                    elem.removeEventListener('load', onLoad);
+                    elem.removeEventListener('error', onError);
+                }
+
+                link.addEventListener('load', onLoad);
+                link.addEventListener('error', onError);
+                
+                // Set timeout (10 seconds)
+                setTimeout(onTimeout, timeout, { target: link });
+            });
+        })).then(results => {
+            if (debug) {
+                if (results.every(res => res)) console.log('all links loaded successfully');
+                else console.log('some links failed to load, all finished loading');
             }
 
             callback();
@@ -727,7 +854,8 @@ class LocalStyle {
             }
             localPrefix += specifier;
         }
-        const localizedStyles = styles.replace(/^([\t\s]*)##/gm, "$1" + localPrefix);
+        // const localizedStyles = styles.replace(/^([\t\s]*)##/gm, "$1" + localPrefix);
+        const localizedStyles = styles.replace(/([^#])##([^#])/g, "$1" + localPrefix + "$2").replace(/^##([^#])/gm, localPrefix + "$1");
 
         const styleSheet = doc.ce("style");
         if (elem == null) location.append(styleSheet);
@@ -799,10 +927,15 @@ class EsLocale {
 
             "today": "Today",
 
+            "am": "morning",
+            "pm": "afternoon",
+            "amShort": "AM",
+            "pmShort": "PM",
+
             "dateDataDivider": "-",
             "timeDataDivider": ":",
-            "dateDevider": "/",
-            "timeDevider": ":",
+            "dateDivider": "/",
+            "timeDivider": ":",
 
             "dataDataSequence": "ymd",
             "dateSequence": "mdy",
@@ -867,10 +1000,15 @@ class EsLocale {
 
             "today": "오늘",
 
+            "am": "오전",
+            "pm": "오후",
+            "amShort": "오전",
+            "pmShort": "오후",
+
             "dateDataDivider": "-",
             "timeDataDivider": ":",
-            "dateDevider": ".",
-            "timeDevider": ":",
+            "dateDivider": ".",
+            "timeDivider": ":",
 
             "dateDataSequence": "ymd",
             "dateSequence": "ymd",
@@ -948,7 +1086,7 @@ const Ecal = {
         const forYear = date.getFullYear();
         const forMonth = date.getMonth();
         const firstDateOfNextMonth = new Date(forYear, forMonth + 1, 1);
-        const beginOfNextMonth = Ecal.getBeginSundayAndWeek(firstDateOfNextMonth);
+        const beginOfNextMonth = this.getBeginSundayAndWeek(firstDateOfNextMonth);
         
         if (date.getTime() >= beginOfNextMonth.date.getTime() && firstDateOfNextMonth.getDay() < 5) {
             const firstDateOfWeek = beginOfNextMonth.date;
@@ -961,7 +1099,7 @@ const Ecal = {
             const forDay = date.getDay();
             const weekBeginDate = forDate - forDay;
 
-            const monthBeginSunday = Ecal.getBeginSundayAndWeek(date);
+            const monthBeginSunday = this.getBeginSundayAndWeek(date);
             const beginDate = monthBeginSunday.date;
             var beginWeek = monthBeginSunday.week;
             date.setDate(weekBeginDate);
@@ -975,9 +1113,13 @@ const Ecal = {
                 const m0 = date.getMonth();
                 return { year: date.getFullYear(), month: m0 + 1, month0: m0, week: beginWeek };
             } else {
+                const lastDateOfPrevMonth = new Date(forYear, forMonth, 0);
+                const beginDateOfLastWeekOfPrevMonth = lastDateOfPrevMonth.getDate() - lastDateOfPrevMonth.getDay();
+                const weekBeginDate = new Date(forYear, forMonth, beginDateOfLastWeekOfPrevMonth);
+                const monthBeginSunday = this.getBeginSundayAndWeek(weekBeginDate);
                 const thisYear = beginDate.getFullYear();
                 const thisMonth = beginDate.getMonth();
-                const thisWeek = this.getYearMonthWeek(thisYear, thisMonth, beginDate.getDate() - 14).week + 2;
+                const thisWeek = monthBeginSunday.week + parseInt((weekBeginDate.getDate() - monthBeginSunday.date.getDate()) / 7);//this.getYearMonthWeek(thisYear, thisMonth, beginDate.getDate() - 14).week + 2;
                 return { year: thisYear, month: thisMonth + 1, month0: thisMonth, week: thisWeek };
             }
         }
@@ -1152,6 +1294,7 @@ const Ecal = {
 
     getDateOffset(year = new Date(), month0, date) {
         if (year instanceof Date) date = new Date(year.getFullYear(), year.getMonth(), year.getDate());
+        else if (typeof year == STR && year.length == 10 && year.indexOf(hp) > -1) date = new Date(year);
         else date = new Date(year, month0, date);
         
         return parseInt(((date.getTime() / 60 / 60 / 1000) + (date.getTimezoneOffset() / -60)) / 24);
@@ -1164,6 +1307,10 @@ const Ecal = {
 
     getDateSetFrom(offset) {
         return this.getDateSet(this.getDateFrom(offset));
+    },
+
+    getDateStringFrom(offset) {
+        return this.getDateString(this.getDateFrom(offset));
     },
 
     getMonthOffset(year, month0) {
@@ -1182,6 +1329,26 @@ const Ecal = {
 
     getDateSetFromMonth(offset, date = 1) {
         return this.getDateSet(this.getDateFromMonth(offset, date));
+    },
+
+    getDateArray(date = new Date()) {
+        return [date.getFullYear(), v2d(date.getMonth() + 1), v2d(date.getDate())];
+    },
+
+    getDateString(date = new Date(), divider = hp) {
+        return this.getDateArray(date).join(divider);
+    },
+
+    getTimeArray(date = new Date()) {
+        return [date.getHours(), v2d(date.getMinutes()), v2d(date.getSeconds())];
+    },
+
+    getTimeString(date = new Date(), divider = cl) {  
+        return this.getTimeArray(date).join(divider);
+    },
+
+    getDateTimeString(date = new Date()) {
+        return [this.getDateString(date), this.getTimeString(date)].join(s);
     },
 
     getDayEmoji(date) {
@@ -1217,6 +1384,14 @@ const Ecal = {
     getDateSet(date = new Date(), lang = this.defaultLanguage) {
         const month0 = date.getMonth();
         const day = date.getDay();
+        const dateArray = this.getDateArray(date);
+        const dateString = dateArray.join(hp);
+        const timeArray = this.getTimeArray(date);
+        const timeString = timeArray.join(cl);
+        const dateTimeString = [this.getDateString(date), timeString].join(s);
+        const hours = date.getHours();
+        const hours12 = (hours % 12).let(it => it == 0 ? 12 : it);
+        const isPM = hours >= 12;
         return {
             ymw: this.getYearMonthWeek(date),
             year: date.getFullYear(),
@@ -1237,11 +1412,28 @@ const Ecal = {
             dayTextFull: EsLocale.get("weekdaysFull", lang)[day],
             dayTextShort: EsLocale.get("weekdaysShort", lang)[day],
             dayEmoji: this.getDayEmoji(day),
+            dateArray,
+            dateString,
             time: date.getTime(),
+            timeArray,
+            timeString,
+            isPM,
+            noon: isPM ? EsLocale.get("pm", lang) : EsLocale.get("am", lang),
+            noonShort: isPM ? EsLocale.get("pmShort", lang) : EsLocale.get("amShort", lang),
+            hours,
+            hours2d: v2d(hours),
+            hours12,
+            minutes: date.getMinutes(),
+            minutes2d: v2d(date.getMinutes()),
+            seconds: date.getSeconds(),
+            seconds2d: v2d(date.getSeconds()),
+            dateTimeString,
             dateOrigin: new Date(date),
         }
     },
 
+    /** 시간순 정렬 함수 */
+    byTime: (a, b) => a.time - b.time,
 
     eoo
 };
@@ -1392,6 +1584,16 @@ const Escd = {
         }
     },
 
+    getCategoryEmoji(category) {
+        return matchCase(category, {
+            "holiday": "🏠",
+            "vacation": "🏖️",
+            "closed": "⛓️",
+            "ceremony": "🎉",
+            "exam": "💯",
+            [def]: "📅",
+        });
+    },
 
     eoo
 };

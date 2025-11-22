@@ -31,7 +31,7 @@ SOFTWARE.
 // Collections of bypass for process codes takes be inline,
 // and monkey patching like as modern languages.
 // 
-// v0.2.2 / release 2025.03.24
+// v0.4.0 / release 2025.08.20
 // 
 // Author: Estre Soliette
 // Established: 2025.01.05
@@ -127,7 +127,7 @@ const forof = (from, work = v => { return false; }) => {
     for (const v of from) if (work(v)) break;
 }
 const forkv = (from, work = (k, v) => { return false; }) => {
-    for (const [k, v] of from) if (work(k, v)) break;
+    for (const [k, v] of Object.entries(from)) if (work(k, v)) break;
 }
 
 const whileIn = function (cond = function (self) { return true; }, work = function (self, count) { return false; }, self = {}) {
@@ -403,10 +403,15 @@ const revert = (to, from, dataOnly = true, primitiveOnly = false, recusive = tru
 
 
 /** run handle */
-const postQueue = (process = it => it, ...args) => setTimeout(process, 0, ...args);
-const postPromise = (process = it => it, ...args) => new Promise((rs, rj) => process(rs, rj, ...args));
-const postAsyncQueue = (process = it => it, ...args) => (async (...args) => await process(...args))(...args);
-const postFrameQueue = (process = it => it, ...args) => requestAnimationFrame(() => process(...args));
+const postQueue = (process = (...args) => args[0], ...args) => setTimeout(process, 0, ...args);
+const postDelayed = (process = (...args) => args[0], delay = 100, ...args) => setTimeout(process, delay, ...args);
+const postPromise = (process = (rs, rj, ...args) => rs(args[0]), ...args) => new Promise((rs, rj) => process(rs, rj, ...args));
+const postBonded = (process = (rs, rj, ...args) => rs(args[0]), delay = 100, ...args) => new Promise((rs, rj) => setTimeout(process, delay, rs, rj, ...args));
+const postPromiseQueue = (process = (rs, rj, ...args) => rs(args[0]), ...args) => new Promise((rs, rj) => setTimeout(process, 0, rs, rj, ...args));
+const postAsyncQueue = (process = async (...args) => args[0], ...args) => process(...args);
+const postAwaitQueue = async (process = async (...args) => args[0], ...args) => await process(...args);
+const postFrameQueue = (process = (...args) => args[0], ...args) => requestAnimationFrame(() => process(...args));
+const postFramePromise = (process = (rs, rj, ...args) => rs(args[0]), ...args) => new Promise((rs, rj) => requestAnimationFrame(() => process(rs, rj, ...args)));
 
 
 // Object function shortcut constants

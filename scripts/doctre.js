@@ -30,7 +30,7 @@ SOFTWARE.
 // 
 // Cold(array object) assigning of HTML Tree for make to JSON string.
 // 
-// v0.9 / release 2025.03.24
+// v0.15 / release 2025.10.17
 // 
 // cold = [] - Cold HTML child node list
 // cold[0] - Tag name, classes, id, name, type = "tag.class1.class2#id@name$type" : string
@@ -124,7 +124,10 @@ class Doctre {
         };
         if (style != null) {
             if (typeof style == "string") element.setAttribute("style", this.matchReplace(style, matchReplacer));
-            else for (const [key, value] of Object.entries(style)) element.style[this.matchReplace(key)] = this.matchReplace(value);//Object.assign(element.style, style);//
+            else for (const [key, value] of Object.entries(style)) {
+                if (key.includes("-")) element.style.setProperty(this.matchReplace(key), this.matchReplace(value));
+                else Object.assign(element.style, style);
+            }
         }
         return element;
     }
@@ -150,7 +153,8 @@ class Doctre {
             case "string": 
                 const tmp = this.createElement();
                 tmp.innerHTML = this.matchReplace(val, matchReplacer);
-                for (const node of tmp.content.childNodes) df.appendChild(node);
+                const childNodes = tmp.content.childNodes;
+                while (childNodes.length > 0) df.appendChild(childNodes[0]);
                 break;
 
             case "object":
@@ -164,49 +168,67 @@ class Doctre {
         return df;
     }
 
+    static get userAgent() { return navigator?.userAgent ?? ""; }
+    static get isRequiredEscape() {
+        const userAgent = this.userAgent;
+        return userAgent != "" && (userAgent.includes("iPad") || userAgent.includes("iPhone") || userAgent.includes("iPod") || (userAgent.includes("Macintosh") && !userAgent.includes("Chrome") && !userAgent.includes("Firefox") && !userAgent.includes("Edge") && !userAgent.includes("Opera")));
+    }
+    static crashBroker(jsonContent) {
+        if (this.isRequiredEscape) jsonContent = jsonContent.replace(/\r\n/gm, "\\r\\n").replace(/\n\r/gm, "\\n\\r").replace(/\r/gm, "\\r").replace(/\n/gm, "\\n").replace(/\t/g, "\\t");
+        return jsonContent;
+    }
+
     static matchReplace(frostOrString, matchReplacer = {}) {
         if (typeof frostOrString != "string") return this.matchReplaceObject(frostOrString, matchReplacer);
 
-        if (matchReplacer != null) for (const key in matchReplacer) {
-            let replacer = matchReplacer[key];
-            const regex = new RegExp("\\|" + key + "\\|", "g");
-            if (replacer == null) {
-                if (matchReplacer.dataPlaceholder == null) continue;
-                else replacer = matchReplacer.dataPlaceholder;
-            }
-            switch (typeof replacer) {
-                case "string":
-                    frostOrString = frostOrString.replace(regex, replacer);
-                    break;
-                case "function":
-                    frostOrString = frostOrString.replace(regex, replacer(key));
-                    break;
-                case "object":
-                    frostOrString = frostOrString.replace(regex, JSON.stringify(replacer));
-                    break;
-                default:
-                    frostOrString = frostOrString.replace(regex, "" + replacer);
-                    break;
-            }
-        }
-        if (matchReplacer.coverReplaceable && matchReplacer.dataPlaceholder != null) {
-            const replacer = matchReplacer.dataPlaceholder;
-            const regex = /\|([^\|]+)\|/g;
-            const matches = frostOrString.match(regex);
-            if (matches != null) for (const match of matches) {
+        if (matchReplacer != null) {
+            for (const key in matchReplacer) {
+                let replacer = matchReplacer[key];
+                const regex = new RegExp("\\|" + key + "\\|", "g");
+                if (replacer == null) {
+                    if (matchReplacer.dataPlaceholder == null) continue;
+                    else replacer = matchReplacer.dataPlaceholder;
+                }
+                let forReplaced;
                 switch (typeof replacer) {
                     case "string":
-                        frostOrString = frostOrString.replace(match, replacer);
+                        forReplaced = replacer;
                         break;
                     case "function":
-                        frostOrString = frostOrString.replace(match, replacer(match));
+                        forReplaced = replacer(key);
                         break;
                     case "object":
-                        frostOrString = frostOrString.replace(match, JSON.stringify(replacer));
+                        forReplaced = JSON.stringify(replacer);
                         break;
                     default:
-                        frostOrString = frostOrString.replace(match, "" + replacer);
+                        forReplaced = "" + replacer;
                         break;
+                }
+                frostOrString = frostOrString.replace(regex, this.crashBroker(forReplaced));
+            }
+            if (matchReplacer.coverReplaceable && matchReplacer.dataPlaceholder != null) {
+                const replacer = matchReplacer.dataPlaceholder;
+                const regex = /\|([^\|]+)\|/g;
+                const matches = frostOrString.match(regex);
+                if (matches != null) {
+                    for (const match of matches) {
+                        let forReplaced;
+                        switch (typeof replacer) {
+                            case "string":
+                                forReplaced = replacer;
+                                break;
+                            case "function":
+                                forReplaced = replacer(match);
+                                break;
+                            case "object":
+                                forReplaced = JSON.stringify(replacer);
+                                break;
+                            default:
+                                forReplaced = "" + replacer;
+                                break;
+                        }
+                        frostOrString = frostOrString.replace(match, this.crashBroker(forReplaced));
+                    }
                 }
             }
         }
@@ -220,12 +242,19 @@ class Doctre {
     }
 
     static parse(frost, matchReplacer = {}) {
+        frost = this.crashBroker(frost);
+        const trimmedFrost = frost.trim();
+        if (trimmedFrost.startsWith("[['") || trimmedFrost.startsWith("['")) frost = frost.replace(/\'/g, '"');
         const replaced = this.matchReplace(frost, matchReplacer);
-        var parsed;
+        let parsed;
         try {
             parsed = JSON.parse(replaced);
         } catch (error) {
-            parsed = JSON.parse(replaced.replace(/\'/g, '"'));
+            try {
+                parsed = this.matchReplaceObject(JSON.parse(frost), matchReplacer);
+            } catch (error) {
+                console.error("Doctre.parse - Frozen JSON parse error: ", error);
+            }
         }
         return this.createFragment(parsed);
     }
@@ -275,6 +304,7 @@ class Doctre {
         for (var item of divided) {
             let [key, value] = item.split(":");
             key = key.trim();
+            if (key == "") continue;
             value = value.trim();
             if (key && value) styles[key] = value;
         }
@@ -390,7 +420,7 @@ class Doctre {
         attach(Node, "stringify", function (prettyJson = false, trimBobbleNode = false, trimHecp = true, styleToObject = !trimHecp, trimIndent = trimHecp) { return Doctre.stringify(this, prettyJson, trimBobbleNode, trimHecp, styleToObject, trimIndent); });
         attach(Node, "stringified", function (prettyJson = false, trimBobbleNode = false, trimHecp = true, styleToObject = !trimHecp, trimIndent = trimHecp) { const frost = this.stringify(prettyJson, trimBobbleNode, trimHecp, styleToObject, trimIndent); this.remove(); return frost; });
 
-        if (jQuery) {
+        if (typeof jQuery != "undefined") {
             attach(jQuery, "coldify", function (trimBobbleNode = false, trimHecp = false, styleToObject = !trimHecp, trimIndent = trimHecp, elementAsDoctre = !trimHecp) { return Doctre.coldify(this, trimBobbleNode, trimHecp, styleToObject, trimIndent, elementAsDoctre); });
             attach(jQuery, "coldified", function (trimBobbleNode = false, trimHecp = false, styleToObject = !trimHecp, trimIndent = trimHecp, elementAsDoctre = !trimHecp) { const cold = this.coldify(trimBobbleNode, trimHecp, styleToObject, trimIndent, elementAsDoctre); this.remove(); return cold; });
 
