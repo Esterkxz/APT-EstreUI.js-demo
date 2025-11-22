@@ -40,6 +40,7 @@ const COMMON_FILES_TO_CACHE = [
 
 
     "./scripts/jcodd.js",
+    "./scripts/doctre.js",
     "./scripts/modernism.js",
     "./scripts/alienese.js",
     "./scripts/estreU0EEOZ.js",
