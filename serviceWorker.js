@@ -1,7 +1,7 @@
-const INSTALLATION_VERSION_NAME = "1.0.0.RC1-r20251122c";
+const INSTALLATION_VERSION_NAME = "1.0.0.RC1-r20251130";
 // ^^ Use for check new update "Native application(webview) version(or Android/iOS version combo) - PWA release version"
 // ex) "1.0.1/1.0.0-r20251101k"
- 
+
 const INSTALLATION_FILE_LIST = [
     "./serviceWorker.js",
     "./fixedTop.html",
@@ -10,6 +10,7 @@ const INSTALLATION_FILE_LIST = [
     "./staticDoc.html",
     "./instantDoc.html",
     "./managedOverlay.html",
+    "./customHandlePrototypes.html",
 
 
     "./styles/main.css",
@@ -20,12 +21,13 @@ const INSTALLATION_FILE_LIST = [
 
 
 // Common files cache - Be changes some time but, well not changed very often
-const CACHE_NAME_COMMON_FILES = "common-files-cache-v1-20251122b";
+const CACHE_NAME_COMMON_FILES = "APT-common-files-cache-v1-20251126";
 
 const COMMON_FILES_TO_CACHE = [
     "./",
     "./index.html",
     "./serviceLoader.html",
+    "./stockHandlePrototypes.html",
     "./webmanifest.json",
 
 
@@ -49,7 +51,7 @@ const COMMON_FILES_TO_CACHE = [
 
 
 // Static files cache - Rarely changes after release
-const CACHE_NAME_STATIC_FILES = "static-files-cache-v1-20251122";
+const CACHE_NAME_STATIC_FILES = "APT-static-files-cache-v1-20251122";
 
 const STATIC_FILES_TO_CACHE = [
     "./favicon.ico",
@@ -85,7 +87,7 @@ const STATIC_FILES_TO_CACHE = [
 
 
 // Stony files cache - Very frequently changes and heavy sized files (for background caching)
-const CACHE_NAME_STONY_FILES = "stony-files-cache-v1-20251101b";
+const CACHE_NAME_STONY_FILES = "APT-stony-files-cache-v1-20251101b";
 
 const STONY_FILES_TO_CACHE = [
 
